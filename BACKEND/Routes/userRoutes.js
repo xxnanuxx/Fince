@@ -1,14 +1,12 @@
 import { Router } from "express";
 import dataBase from '../ConectionDb/connectionDb.js'
+import UserController from "../Controllers/userController.js";
+
+const userController = new UserController(); 
 
 const userRoutes = Router()
 
-userRoutes.get("/", (req,res) => {
-    dataBase.ref('usuarios').once("value", (snapshot) => {
-        const data = snapshot.val()
-        res.send({ success: true, message: "Usuarios encontrados", data });
-    })
-})
+userRoutes.get("/", userController.getAllUsers)
 
 userRoutes.post("/new-user", (req,res) => {
     const { nombre, apellido, correo, contrasena } = req.body;
@@ -22,8 +20,8 @@ userRoutes.post("/new-user", (req,res) => {
     res.send("Usuario creado con exito")
 })
 
-userRoutes.delete("/delete-user", (req, res) => {
-    
+userRoutes.get("/delete-user", (req, res) => {
+    dataBase.ref('usuarios/' + req.params.id).remove
 })
 
 export default userRoutes
