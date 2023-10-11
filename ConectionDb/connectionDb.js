@@ -1,5 +1,5 @@
 import admin from "firebase-admin"
-import credencial from "../fince-ccc1c-firebase-adminsdk-oj0e5-86d9067c99.json" assert { type: 'json' };
+import credencial from "../fince-ccc1c-firebase-adminsdk-oj0e5-c3a62b0cb0.json" assert { type: 'json' };
 
 admin.initializeApp({
     credential: admin.credential.cert(credencial),
