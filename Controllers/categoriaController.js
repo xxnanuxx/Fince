@@ -3,14 +3,25 @@ import dataBase from '../ConectionDb/connectionDb.js'
 class categoriaController {
     constructor(){}
 
-    getAllCategories = (req,res,next) => {
+    getAllCategories = async (req,res,next) => {
         const  idUser = req.params.idUser;
-        const ref = dataBase.ref('usuarios/' + idUser + '/categorias');
-        
-        ref.once("value", (snapshot) => {
-            const categorias = snapshot.val() 
-            res.send({ success: true, message: "Categorias encontradas", categorias });
-        })
+
+        const usuarioRef = dataBase.collection('usuarios');
+
+        usuarioRef
+        .doc(idUser)
+        .get()
+        .then((userDoc) => {
+              const userData = userDoc.data();
+      
+              const categorias = userData.categorias;
+      
+              if (categorias) {
+                res.send({ success: true, message: "Categorias encontradas", categorias });;
+              } else {
+                res.send({ message: 'No existen categorias creadas' });
+              }
+          })
     }
     createCategoria = async (req,res,next) => {
         const  idUser = req.params.id;
@@ -26,7 +37,8 @@ class categoriaController {
                 descripcion : descripcion,
                 montoMax : montoMax
             };
-            const result = dataBase.ref('usuarios/' + idUser + '/categorias').push(newCategorie);
+
+            dataBase.collection('usuarios').doc(idUser).update({categorias: newCategorie})
             res.status(200).send("Categoria creada con exito")
         } catch{
             res.status(404).send({ success: false, result: "Categoria no fue creada" });

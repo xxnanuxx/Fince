@@ -2,14 +2,21 @@ import dataBase from '../ConectionDb/connectionDb.js'
 
 class userController {
     constructor(){}
-    getAllUsers = (req,res,next) => {
-        dataBase.ref('usuarios').once("value", (snapshot) => {
-            const data = snapshot.val()
-            res.send({ success: true, message: "Usuarios encontrados", data });
-        })
+    getAllUsers = async (req,res,next) => {
+        try {
+            const querySnapshot = await dataBase.collection("usuarios").get();
+            const usuarios = querySnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            res.status(200).send({success: true, usuarios})
+        } catch (error) {
+            res.status(404).send({ success: false, result: "Error al traer usuarios" });
+        }
+        
     }
 
-    createUser = (req,res,next) => {
+    createUser = async (req,res,next) => {
         try{
             const { nombre, apellido, correo, contrasena, perfil } = req.body;
             const newUser = {
@@ -19,7 +26,9 @@ class userController {
                 contrasena : contrasena,
                 perfil : perfil
             };
-            dataBase.ref('usuarios').push(newUser);
+
+            await dataBase.collection('usuarios').add(newUser)
+
             res.status(200).send("Usuario creado con exito")
         } catch{
             res.status(404).send({ success: false, result: "Usuario no registrado" });
@@ -28,43 +37,40 @@ class userController {
     }
 
     login = async (req, res, next) => {
-
         try {
             const { correo, contrasena } = req.body;
-            
-            const snapshot = await dataBase.ref('usuarios')
-                                      .orderByChild('correo')
-                                      .equalTo(correo)
-                                      .once("value")
-            
-            if (!snapshot.exists()) {
-                throw new Error("Correo no registrado");
+
+            const usuariosCollection = dataBase.collection('usuarios');
+
+            const query = usuariosCollection.where('correo', '==', correo);
+            const querySnapshot = await query.get();
+                
+            if (querySnapshot.empty) {
+              throw new Error("Correo no registrado");
             }
-
+        
             let usuarioValido = false;
-
-            snapshot.forEach((childSnapshot) => {
-              const usuario = childSnapshot.val();
+        
+            querySnapshot.forEach((doc) => {
+              const usuario = doc.data();
               if (usuario.contrasena === contrasena) {
                 usuarioValido = true;
               }
             });
-
+        
             if (!usuarioValido) {
-                throw new Error("Contraseña incorrecta");
+              throw new Error("Contraseña incorrecta");
             }
             
             res.status(200).send({ success: true, message: "Inicio de sesión exitoso" });
-            
-        } catch{
-            console.error("Error al validar usuario:", message.error);
+        } catch (error) {
             res.status(404).send({ success: false, result: error.message });
         }
     }
       
-    deleteUser = (req, res, next) => {
+    deleteUser = async (req, res, next) => {
         try {
-            dataBase.ref('usuarios/' + req.params.id).remove()
+            await dataBase.collection("usuarios").doc(req.params.id).delete();
             res.status(200).send({ success: true, message: "Usuario borrado" });
         } catch {
             res.status(400).send({ success: false, result: error.message });
