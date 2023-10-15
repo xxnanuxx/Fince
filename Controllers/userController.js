@@ -24,6 +24,8 @@ class userController {
                 apellido : apellido,
                 correo : correo,
                 contrasena : contrasena,
+                ingreso : 0,
+                egreso : 0,
                 perfil : perfil
             };
 
