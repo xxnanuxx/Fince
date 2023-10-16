@@ -3,6 +3,8 @@ import cors from "cors";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express"
 import routes from "./Routes/routes.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 //Metadata info about our API
 const options = {
@@ -27,7 +29,7 @@ const swaggerSpect = swaggerJSDoc(options)
 
 const app = express()
 
-app.set('port', 8080)
+app.set('port', process.env.PORT)
 
 // Function to setup our docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpect))
@@ -42,7 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 //middlewares de rutas
 app.use(routes);
 
-app.listen(8080, () => {
-  console.log("Server on port", 8080);
+app.listen(process.env.PORT, () => {
+  console.log("Server on port", process.env.PORT);
 });
   
