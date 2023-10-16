@@ -1,10 +1,38 @@
 import express from "express";
-import routes from "./Routes/routes.js";
 import cors from "cors";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express"
+import routes from "./Routes/routes.js";
+
+//Metadata info about our API
+const options = {
+	definition: {
+		openapi: "3.0.0",
+		info: {
+			title: "Fince API",
+			version: "1.0.0",
+			description: "API para aplicacion FINCE",
+		},
+		servers: [
+			{
+				url: "http://localhost:8080",
+			},
+		],
+	},
+	apis: ["./Routes/*.js", "./Controllers/*.js"]
+};
+
+//Docs en JSON Format
+const swaggerSpect = swaggerJSDoc(options)
 
 const app = express()
 
 app.set('port', 8080)
+
+// Function to setup our docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpect))
+
+console.log("Version 1 Docs are available at http://localhost:8080/api-docs")
 
 //middleware de aplicacion
 app.use(cors());
@@ -14,9 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 //middlewares de rutas
 app.use(routes);
 
-async function main() {
-    app.listen(8080);
-    console.log("Server on port", 8080);
-  }
+app.listen(8080, () => {
+  console.log("Server on port", 8080);
+});
   
-main();

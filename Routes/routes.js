@@ -5,6 +5,7 @@ import transaccionRouter from "./transaccionRoutes.js"
 
 const routes = Router()
 
+
 routes.use("/users",userRouter)
 routes.use("/categorias", categoriaRouter)
 routes.use("/transacciones", transaccionRouter)

@@ -31,8 +31,6 @@ class TransaccionController {
             if (monto <= 0) {
                 throw new Error("El monto debe ser mayor a 0");
             }
-
-            console.log(idUser)
             
             const newTransaccion = {
                 titulo : titulo,
@@ -42,6 +40,19 @@ class TransaccionController {
             };
 
             dataBase.collection('usuarios').doc(idUser).update({transacciones: newTransaccion})
+
+            const usuarioRef = dataBase.collection('usuarios').doc(idUser)
+
+            usuarioRef
+            .get()
+            .then((doc) => {
+                const data = doc.data();
+                const egresoActual = data.egreso;
+                const nuevoEgreso = egresoActual - monto;
+                usuarioRef.update({egreso : nuevoEgreso})
+            })
+            
+
             res.status(200).send("Transaccion creada con exito")
         } catch (error){
             res.status(404).send({ success: false, result: error.message });
