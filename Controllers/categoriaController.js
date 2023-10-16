@@ -102,7 +102,6 @@ class categoriaController {
     deleteCategorie = async (req,res,next) => {
         try {
             const {idUser, idCat} = req.params;
-            const {nombre, descripcion, montoMax } = req.body;
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
 

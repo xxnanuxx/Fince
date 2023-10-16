@@ -1,6 +1,3 @@
 ##API DE FINCE
 
-ENDPOINTS
-
-http://localhost:8080/users/ --> OBTIENE USUARIOS
-http://localhost:8080/users/new-user --> CREA USUARIO
+Version 1 Docs are available at http://localhost:8080/api-docs

@@ -16,6 +16,22 @@ class userController {
         
     }
 
+    getUserById = async (req,res,next) => {
+        try {
+            const idUser = req.params.idUser
+            const usuarioRef = dataBase.collection("usuarios").doc(idUser);
+
+            const querySnapshot = await usuarioRef.get()
+
+            const usuario = querySnapshot.data()
+
+            res.status(200).send({success: true, usuario})
+        } catch (error) {
+            res.status(404).send({ success: false, result: error.message });
+        }
+        
+    }
+
     createUser = async (req,res,next) => {
         try{
             const { nombre, apellido, correo, contrasena, perfil } = req.body;
