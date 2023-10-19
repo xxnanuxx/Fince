@@ -47,16 +47,21 @@ class categoriaController {
     createCategoria = async (req,res,next) => {
         const  idUser = req.params.id;
         try{
-            const {nombre, descripcion, montoMax } = req.body;
+            const {nombre, descripcion, montoMax, tipo } = req.body;
 
-            if (montoMax <= 0) {
-                throw new Error("El monto debe ser mayor a 0");
+            //ingreso = 1
+            //egreso = 0
+
+            if (montoMax <= 0 && !tipo) {
+                throw new Error("El monto para una categoria Egreso debe ser mayor a 0");
             }
             
             const newCategorie = {
                 nombre : nombre,
                 descripcion : descripcion,
-                montoMax : montoMax
+                montoMax : montoMax,
+                tipo : tipo,
+                montoConsumido : 0
             };
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
@@ -88,7 +93,6 @@ class categoriaController {
                 // Actualiza el documento del usuario
                 await usuarioRef.update({ categorias: userData.categorias });
         
-                
             } else {
                 throw new Error("No se encontro la categoria")
             }
