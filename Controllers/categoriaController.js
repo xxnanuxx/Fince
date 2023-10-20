@@ -24,51 +24,59 @@ class categoriaController {
 
     getAllCategories = async (req,res,next) => {
         const  idUser = req.params.idUser;
+        try {
+            const usuarioRef = dataBase.collection('usuarios').doc(idUser);
+            const categoriaRef = usuarioRef.collection('categorias')
 
-        const usuarioRef = dataBase.collection('usuarios');
+            const querySnapshot = await categoriaRef.get()
 
-        console.log(idUser)
+            const categorias = []
 
-        usuarioRef
-        .doc(idUser)
-        .get()
-        .then((userDoc) => {
-              const userData = userDoc.data();
-      
-              const categorias = userData.categorias;
-      
-              if (categorias) {
-                res.send({ success: true, message: "Categorias encontradas", categorias });;
-              } else {
-                res.status(404).send({success: false, message: 'No existen categorias creadas' });
-              }
-          })
+            querySnapshot.forEach((doc) => {
+                categorias.push({ id: doc.id, ...doc.data() });
+              });
+
+            res.status(200).send({ success: true, message: "Categorias encontradas", categorias});;
+        } catch(error){
+            res.status(404).send({ success: false, message: "No se encontraron categorias"});;
+        }
+        
     }
     createCategoria = async (req,res,next) => {
         const  idUser = req.params.id;
         try{
-            const {nombre, descripcion, montoMax, tipo } = req.body;
+            const { nombre, descripcion, montoMax, tipo } = req.body;
 
             //ingreso = 1
             //egreso = 0
 
-            if (montoMax <= 0 && !tipo) {
+            const tipoConv = parseInt(tipo)
+            const montoMaxConv = parseFloat(montoMax)
+
+            if (montoMaxConv <= 0 && !tipoConv) {
                 throw new Error("El monto para una categoria Egreso debe ser mayor a 0");
             }
+
+            if (montoMaxConv > 0 && tipoConv) {
+                throw new Error("El monto para una categoria Ingreso debe ser 0");
+            }
+            
             
             const newCategorie = {
                 nombre : nombre,
                 descripcion : descripcion,
-                montoMax : montoMax,
-                tipo : tipo,
+                montoMax : montoMaxConv,
+                tipo : tipoConv,
                 montoConsumido : 0
             };
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
-            
-            await usuarioRef.update({categorias: FieldValue.arrayUnion(newCategorie)})
 
-            res.status(200).send({success: true, message :"Categoria creada con exito"})
+            const categoriaRef = usuarioRef.collection('categorias')
+            
+            await categoriaRef.add(newCategorie)
+
+            res.status(200).send({success: true, message : "Categoria creada con exito"})
         } catch (error) {
             res.status(404).send({ success: false, result: error.message });
         }
@@ -77,26 +85,36 @@ class categoriaController {
     editCategorie = async (req,res,next) => {
         try {
             const {idUser, idCat} = req.params;
-            const {nombre, descripcion, montoMax } = req.body;
+            const {nombre, descripcion, montoMax, tipo} = req.body;
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
+            const categoriaRef = usuarioRef.collection('categorias').doc(idCat)
 
-            const userSnapshot = await usuarioRef.get()
+            const categoriaData = await categoriaRef.get()
 
-            const userData = userSnapshot.data()
+            const tipoConv = parseInt(tipo)
+            const montoMaxConv = parseFloat(montoMax)
 
-            if (userData && userData.categorias && userData.categorias[idCat]) {
-                userData.categorias[idCat].nombre = nombre;
-                userData.categorias[idCat].descripcion = descripcion;
-                userData.categorias[idCat].montoMax = montoMax;
-        
-                // Actualiza el documento del usuario
-                await usuarioRef.update({ categorias: userData.categorias });
-        
-            } else {
-                throw new Error("No se encontro la categoria")
+            if (montoMaxConv <= 0 && !tipoConv) {
+                throw new Error("El monto para una categoria Egreso debe ser mayor a 0");
             }
-            res.status(200).send({success: true, message : "Categoria editada con exito"})
+
+            if (montoMaxConv > 0 && tipoConv) {
+                throw new Error("El monto para una categoria Ingreso debe ser 0");
+            }
+
+            if (!categoriaData.exists) {
+                throw new Error("No existe la categoria")
+            }
+
+            await categoriaRef.update({
+                nombre : nombre,
+                descripcion : descripcion,
+                montoMax : montoMaxConv,
+                tipo : tipoConv
+            })
+
+            res.status(200).send({success: true, message: "Categoria editada con exito"})
             
         } catch (error) {
             res.status(404).send({ success: false, result: error.message });
@@ -109,19 +127,11 @@ class categoriaController {
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
 
-            const userSnapshot = await usuarioRef.get()
+            const categoriaRef = usuarioRef.collection('categorias').doc(idCat)
 
-            const categorias = userSnapshot.data().categorias
+            categoriaRef.delete()
 
-            if (idCat >= 0 && idCat < categorias.length) {
-                categorias.splice(idCat, 1)
-
-                await dataBase.collection('usuarios').doc(idUser).update({ categorias });
-
-                res.status(200).send({success: true, message : "Categoria eliminada con exito"})
-            } else {
-                throw new Error("Indice invalido")
-            }
+            res.status(200).send({success: true, message : "Categoria eliminada con exito"})
 
         } catch (error) {
             res.status(404).send({ success: false, result: error.message });

@@ -24,34 +24,51 @@ class TransaccionController {
     constructor(){}
 
     getAllTransaccion = async (req, res) => {
-        const idUser = req.params.idUser;
-        const usuarioRef = dataBase.collection('usuarios').doc(idUser);
-      
+        
         try {
-            const userDoc = await usuarioRef.get();
-            const userData = userDoc.data();
-            
-            
-            const transacciones = userData.transacciones 
+            const idUser = req.params.idUser;
+            const usuarioRef = dataBase.collection('usuarios').doc(idUser);
+
+            const transaccionRef = usuarioRef.collection('transacciones')
+            const categoriaRef = usuarioRef.collection('categorias')
+            const querySnapshot = await transaccionRef.get()
+
+            const transacciones = []
+
+            querySnapshot.forEach((doc) => {
+                transacciones.push({ id: doc.id, ...doc.data() });
+            });
 
             if (transacciones.length > 0) {
-                const montoEgresado = 0
-                const saldoIngresado = 0
+                let montoEgresado = 0
+                let montoIngresado = 0
                 for (let index = 0; index < transacciones.length; index++) {
+                    let categoriaTran = transacciones[index].categoria
+
+                    let query = await categoriaRef.where('nombre', "==" , categoriaTran).get()
+
+                    if (query.size === 1) {
+                        let doc = query.docs[0]
+                        let dato = {...doc.data()}
+
+                        if (!dato.tipo) {
+                            montoEgresado += transacciones[index].monto;
+                        } else {
+                            montoIngresado += transacciones[index].monto;
+                        }
+                    }
                     
-                    console.log(query)
-                    //montoEgresado =+ array[index].monto;
                 }
 
-                const retorno = {transacciones : transacciones, saldoIngresado : saldoIngresado, saldoEgresado : montoEgresado}
+                const retorno = {transacciones : transacciones, saldoIngresado : montoIngresado, saldoEgresado : montoEgresado}
 
                 res.status(200).send({ success: true, message: "Transacciones encontradas", retorno });
             } else {
-              res.status(404).send({ message: 'No existen transacciones realizadas' });
+              res.status(404).send({ message: "No existen transacciones realizadas" });
             }
 
         } catch (error) {
-          res.status(500).send({ success: false, result: error.message });
+          res.status(404).send({ success: false, result: error.message });
         }
       };
 
@@ -70,17 +87,10 @@ class TransaccionController {
             };
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
+
+            const transaccionRef = usuarioRef.collection('transacciones')
             
-            await usuarioRef.update({transacciones: FieldValue.arrayUnion(newTransaccion)})
-            
-            usuarioRef
-            .get()
-            .then((doc) => {
-                const data = doc.data();
-                const egresoActual = data.egreso;
-                const nuevoEgreso = egresoActual - monto;
-                usuarioRef.update({egreso : nuevoEgreso})
-            })
+            await transaccionRef.add(newTransaccion)
 
             res.status(200).send({success: true, message: "Transaccion creada con exito"})
         } catch (error){
@@ -93,30 +103,9 @@ class TransaccionController {
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
 
-            const userSnapshot = await usuarioRef.get()
-
-            const transacciones = userSnapshot.data().transacciones
+            const transaccionRef = usuarioRef.collection('transacciones').doc(idTran)
             
-            if (idTran >= 0 && idTran < transacciones.length) {
-                const monto = transacciones[idTran].monto
-                
-                usuarioRef
-                .get()
-                .then((doc) => {
-                    const data = doc.data();
-                    const egresoActual = data.egreso;
-                    const nuevoEgreso = egresoActual + monto;
-                    usuarioRef.update({egreso : nuevoEgreso})
-                })
-
-                transacciones.splice(idTran, 1)
-
-                await dataBase.collection('usuarios').doc(idUser).update({ transacciones });
-
-                res.status(200).send({success: true, message : "Transaccion eliminada con exito"})
-            } else {
-                throw new Error("Indice invalido")
-            }
+            await transaccionRef.delete()
 
         } catch (error) {
             res.status(404).send({ success: false, result: error.message });
