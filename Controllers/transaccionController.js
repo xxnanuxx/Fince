@@ -1,5 +1,6 @@
 import dataBase from '../ConectionDb/connectionDb.js'
 import { FieldValue } from 'firebase-admin/firestore';
+import CategoriaController from './categoriaController.js';
 /**
  * @openapi
  * components:
@@ -90,6 +91,12 @@ class TransaccionController {
 
             const transaccionRef = usuarioRef.collection('transacciones')
             
+            const categoriaController = new CategoriaController(); 
+
+            if (!categoriaController.aplicarConsumo(idUser, categoria, montoConv)) {
+                throw new Error("No pudo aplicar monto a Categoria")
+            }
+
             await transaccionRef.add(newTransaccion)
 
             res.status(200).send({success: true, message: "Transaccion creada con exito"})
@@ -104,8 +111,21 @@ class TransaccionController {
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
 
             const transaccionRef = usuarioRef.collection('transacciones').doc(idTran)
+            const querySnapshot = await transaccionRef.get()
+            const transaccionData = querySnapshot.data()
+
+            const monto = -transaccionData.monto
+            const categoria = transaccionData.categoria
+
+            const categoriaController = new CategoriaController(); 
+
+            if (!categoriaController.aplicarConsumo(idUser, categoria, monto)) {
+                throw new Error("No pudo aplicar monto a Categoria")
+            }
             
             await transaccionRef.delete()
+
+            res.status(200).send({success: true, message: "Transaccion eliminada con exito"})
 
         } catch (error) {
             res.status(404).send({ success: false, result: error.message });

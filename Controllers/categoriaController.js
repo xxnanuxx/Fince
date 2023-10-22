@@ -61,7 +61,6 @@ class categoriaController {
                 throw new Error("El monto para una categoria Ingreso debe ser 0");
             }
             
-            
             const newCategorie = {
                 nombre : nombre,
                 descripcion : descripcion,
@@ -73,6 +72,16 @@ class categoriaController {
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
 
             const categoriaRef = usuarioRef.collection('categorias')
+
+            let query = await categoriaRef.where('nombre', "==" , newCategorie.nombre).get()
+            
+            if (query.size === 1) {
+                let doc = query.docs[0]
+                
+                if (!doc.data().isEmpty) {
+                    throw new Error("Esta categoria ya existe")
+                }
+            }
             
             await categoriaRef.add(newCategorie)
 
@@ -85,7 +94,7 @@ class categoriaController {
     editCategorie = async (req,res,next) => {
         try {
             const {idUser, idCat} = req.params;
-            const {nombre, descripcion, montoMax, tipo} = req.body;
+            const {descripcion, montoMax, tipo} = req.body;
 
             const usuarioRef = dataBase.collection('usuarios').doc(idUser)
             const categoriaRef = usuarioRef.collection('categorias').doc(idCat)
@@ -108,7 +117,6 @@ class categoriaController {
             }
 
             await categoriaRef.update({
-                nombre : nombre,
                 descripcion : descripcion,
                 montoMax : montoMaxConv,
                 tipo : tipoConv
@@ -135,6 +143,35 @@ class categoriaController {
 
         } catch (error) {
             res.status(404).send({ success: false, result: error.message });
+        }
+    }
+
+     async aplicarConsumo(idUser, nomCat, montoConsumido) {
+        try {
+            
+            const usuarioRef = dataBase.collection('usuarios').doc(idUser)
+            const query = await usuarioRef.collection('categorias').where("nombre", "==", nomCat).get()
+            
+            if (query.size === 1) {
+                const doc = query.docs[0]
+                const idCat = doc.id
+                const categoriaRef = usuarioRef.collection('categorias').doc(idCat)
+                const categoriaData = (await categoriaRef.get()).data()
+
+                const montoAnt = categoriaData.montoConsumido
+                const tipo = categoriaData.tipo
+
+                if (!tipo){
+                    await categoriaRef.update({
+                        montoConsumido : montoConsumido + montoAnt
+                    })
+                }
+            }
+
+            return true
+            
+        } catch (error) {
+            return false
         }
     }
 }
