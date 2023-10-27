@@ -1,13 +1,12 @@
-import { Router } from "express";
-import userRouter from "./userRoutes.js"
-import categoriaRouter from "./categoriaRoutes.js"
-import transaccionRouter from "./transaccionRoutes.js"
+import express from "express";
+import userRouter from "./userRoutes.js";
+import categoryRouter from "./categoryRoutes.js";
+import transactionRouter from "./transactionRoutes.js";
 
-const routes = Router()
+const router = express.Router();
 
+router.use("/api/users", userRouter);
+router.use("/api/categories", categoryRouter);
+router.use("/api/transactions", transactionRouter);
 
-routes.use("/users",userRouter)
-routes.use("/categorias", categoriaRouter)
-routes.use("/transacciones", transaccionRouter)
-
-export default routes
+export default router;
