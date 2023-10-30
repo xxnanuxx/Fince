@@ -1,6 +1,7 @@
 import express from "express";
 import AuthMiddleware from "../middleware/authMiddleware.js";
 import UserController from "../Controllers/userController.js";
+import CustomError from "../Utils/customError.js";
 
 const router = express.Router();
 /**
@@ -33,7 +34,11 @@ router.get("/", AuthMiddleware, async (req, res) => {
     res.status(result.status).json(result.result);
   } catch (error) {
     console.error("Error in getUsers {GET}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -86,7 +91,11 @@ router.post("/login", async (req, res) => {
       .json({ userId: result.user.id, user: result.user, token: result.token });
   } catch (error) {
     console.log("Error in login {POST}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -133,7 +142,11 @@ router.post("/", async (req, res) => {
     });
   } catch (error) {
     console.log("Error in createUser {POST}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -173,7 +186,11 @@ router.get("/:id", AuthMiddleware, async (req, res) => {
     res.status(user.status).json({ id: user.id, userData: user.userData });
   } catch (error) {
     console.log("Error in FindUserById {GET}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -210,7 +227,11 @@ router.delete("/:userId", AuthMiddleware, async (req, res) => {
     res.status(userDeleted.status).json({ message: userDeleted.message });
   } catch (error) {
     console.log("Error in deleteUserById {DELETE}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 
@@ -296,7 +317,11 @@ router.put(":userId", AuthMiddleware, async (req, res) => {
     res.status(result.status).json(result.data);
   } catch (error) {
     console.log("Error in updateUser {PUT}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 
