@@ -9,6 +9,6 @@ const router = express.Router();
 router.use("/api/users", userRouter);
 router.use("/api/categories", categoryRouter);
 router.use("/api/transactions", transactionRouter);
-router.use("/api/stocks", stockRouter);
+router.use("/api/instruments", stockRouter);
 
 export default router;

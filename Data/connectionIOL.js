@@ -25,6 +25,8 @@ async function connectionIol() {
       instance = response.json();
     }
 
+    //console.log(process.env.IOL_ACCESS_TOKEN);
+
     return instance;
   } catch {
     console.error("Error obtaining token from IOL API: " + error.status);
