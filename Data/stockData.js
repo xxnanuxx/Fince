@@ -149,6 +149,44 @@ async function filterData(dataList) {
   return filteredData;
 }
 
+//Se le pasa el simbolo identificatorio del FCI y devuelve toda la info del simbolo
+async function getInvestmentFundData(simbol) {
+  try {
+    const finalUrl =
+      url +
+      process.env.IOL_URL_IF_SIMBOL.replace("{simbolo}", simbol.toString());
+    const headers = {
+      Authorization:
+        process.env.IOL_TOKEN_TYPE + " " + process.env.IOL_ACCESS_TOKEN,
+    };
+
+    const response = await fetch(finalUrl, { headers });
+    const data = await response.json();
+
+    return data;
+  } catch {
+    console.error("Error obtaining investing funds " + simbol + " information");
+  }
+}
+
+async function getSimbolData(simbol) {
+  try {
+    const finalUrl =
+      url + process.env.IOL_URL_SIMBOL.replace("{simbolo}", simbol.toString());
+    const headers = {
+      Authorization:
+        process.env.IOL_TOKEN_TYPE + " " + process.env.IOL_ACCESS_TOKEN,
+    };
+
+    const response = await fetch(finalUrl, { headers });
+    const data = await response.json();
+
+    return data;
+  } catch {
+    console.error("Error obtaining investing funds " + simbol + " information");
+  }
+}
+
 //funcion de prueba para refrescar el token de iol
 /* async function refreshTokenTest() {
   try {
@@ -175,4 +213,6 @@ export default {
   getGovernmentBonds,
   getCorporateBonds,
   getInvestmentFund,
+  getInvestmentFundData,
+  getSimbolData,
 };

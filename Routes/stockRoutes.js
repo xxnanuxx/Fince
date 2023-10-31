@@ -23,4 +23,11 @@ router.post("/FCI", async (req, res) => {
   res.json(await stockController.getInvestmentFund());
 });
 
+router.get("/FCI/:simbol", async (req, res) => {
+  res.json(await stockController.getInvestmentFundData(req.params.simbol));
+});
+
+router.get("/:simbol", async (req, res) => {
+  res.json(await stockController.getSimbolData(req.params.simbol));
+});
 export default router;
