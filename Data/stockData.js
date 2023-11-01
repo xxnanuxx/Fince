@@ -6,15 +6,27 @@ const tokenType = process.env.IOL_TOKEN_TYPE;
 const url = process.env.IOL_URL_API;
 connectionIOL.checkToken();
 
+async function getAllInstruments() {
+  try {
+    let allInstruments = await getCedears();
+    allInstruments = allInstruments.concat(await getStocks());
+    allInstruments = allInstruments.concat(await getCorporateBonds());
+    allInstruments = allInstruments.concat(await getGovernmentBonds());
+    allInstruments = allInstruments.concat(await getInvestmentFund());
+    return allInstruments;
+  } catch {}
+}
+
 //Devuelve todos los cedears disponibles
 async function getCedears() {
+  const instrumentType = "cedears";
   try {
     if (await connectionIOL.checkToken()) {
       const finalUrl =
         url +
         process.env.IOL_URL_ALL_INSTRUMENTS.replace(
           "{Instrumento}",
-          "cedears"
+          instrumentType
         ).replace("{Pais}", "Argentina");
       const headers = {
         Authorization:
@@ -22,7 +34,7 @@ async function getCedears() {
       };
 
       const response = await fetch(finalUrl, { headers });
-      const data = filterData(await response.json());
+      const data = filterData(await response.json(), instrumentType);
 
       return data;
     }
@@ -33,13 +45,14 @@ async function getCedears() {
 
 //Devuelve todos las acciones disponibles
 async function getStocks() {
+  const instrumentType = "acciones";
   try {
     if (await connectionIOL.checkToken()) {
       const finalUrl =
         url +
         process.env.IOL_URL_ALL_INSTRUMENTS.replace(
           "{Instrumento}",
-          "acciones"
+          instrumentType
         ).replace("{Pais}", "Argentina");
       const headers = {
         Authorization:
@@ -47,7 +60,7 @@ async function getStocks() {
       };
 
       const response = await fetch(finalUrl, { headers });
-      const data = filterData(await response.json());
+      const data = filterData(await response.json(), instrumentType);
 
       return data;
     }
@@ -58,13 +71,14 @@ async function getStocks() {
 
 //Devuelve todos los titulos publicos (bonos del estado) disponibles
 async function getGovernmentBonds() {
+  const instrumentType = "titulosPublicos";
   try {
     if (await connectionIOL.checkToken()) {
       const finalUrl =
         url +
         process.env.IOL_URL_ALL_INSTRUMENTS.replace(
           "{Instrumento}",
-          "titulosPublicos"
+          instrumentType
         ).replace("{Pais}", "Argentina");
       const headers = {
         Authorization:
@@ -72,7 +86,7 @@ async function getGovernmentBonds() {
       };
 
       const response = await fetch(finalUrl, { headers });
-      const data = filterData(await response.json());
+      const data = filterData(await response.json(), instrumentType);
 
       return data;
     }
@@ -83,13 +97,14 @@ async function getGovernmentBonds() {
 
 //Devuelve todas las obligaciones negociables (bonos corporativos) disponibles
 async function getCorporateBonds() {
+  const instrumentType = "obligacionesNegociables";
   try {
     if (await connectionIOL.checkToken()) {
       const finalUrl =
         url +
         process.env.IOL_URL_ALL_INSTRUMENTS.replace(
           "{Instrumento}",
-          "obligacionesNegociables"
+          instrumentType
         ).replace("{Pais}", "Argentina");
       const headers = {
         Authorization:
@@ -97,7 +112,7 @@ async function getCorporateBonds() {
       };
 
       const response = await fetch(finalUrl, { headers });
-      const data = filterData(await response.json());
+      const data = filterData(await response.json(), instrumentType);
 
       return data;
     }
@@ -108,6 +123,7 @@ async function getCorporateBonds() {
 
 //Devuelve todos los fondos comunes de inversion (FCI) disponibles
 async function getInvestmentFund() {
+  const instrumentType = "FCI";
   try {
     if (await connectionIOL.checkToken()) {
       const finalUrl = url + process.env.IOL_URL_IF;
@@ -126,6 +142,7 @@ async function getInvestmentFund() {
           ultimoPrecio: fci.ultimoOperado,
           variacionPorcentual: fci.variacion,
           descripcion: fci.descripcion,
+          tipo_instrumento: instrumentType,
         };
       });
 
@@ -137,13 +154,14 @@ async function getInvestmentFund() {
 }
 
 //filtra la info que tiene que pasar para cedears, bonos, fci, etc.
-async function filterData(dataList) {
+async function filterData(dataList, instrumentType) {
   let filteredData = dataList.titulos.map((titulo) => {
     return {
       simbolo: titulo.simbolo,
       ultimoPrecio: titulo.ultimoPrecio,
       variacionPorcentual: titulo.variacionPorcentual,
       descripcion: titulo.descripcion,
+      tipo_instrumento: instrumentType,
     };
   });
   return filteredData;
@@ -215,4 +233,5 @@ export default {
   getInvestmentFund,
   getInvestmentFundData,
   getSimbolData,
+  getAllInstruments,
 };

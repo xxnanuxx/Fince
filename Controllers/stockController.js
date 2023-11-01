@@ -28,6 +28,10 @@ async function getSimbolData(simbol) {
   return await stocksData.getSimbolData(simbol);
 }
 
+async function getAllInstruments() {
+  return await stocksData.getAllInstruments();
+}
+
 export default {
   getCedears,
   getStocks,
@@ -36,4 +40,5 @@ export default {
   getInvestmentFund,
   getInvestmentFundData,
   getSimbolData,
+  getAllInstruments,
 };

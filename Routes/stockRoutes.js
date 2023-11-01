@@ -23,11 +23,21 @@ router.post("/FCI", async (req, res) => {
   res.json(await stockController.getInvestmentFund());
 });
 
-router.get("/FCI/:simbol", async (req, res) => {
-  res.json(await stockController.getInvestmentFundData(req.params.simbol));
+router.get("/FCI/:simbolo", async (req, res) => {
+  res.json(await stockController.getInvestmentFundData(req.params.simbolo));
 });
 
-router.get("/:simbol", async (req, res) => {
-  res.json(await stockController.getSimbolData(req.params.simbol));
+router.get("/simbolo/:simbolo", async (req, res) => {
+  res.json(await stockController.getSimbolData(req.params.simbolo));
 });
+
+router.post("/TODOS", async (req, res) => {
+  let numero = parseInt(1);
+  if (!numero) {
+    console.log("todos putos");
+  }
+
+  res.json(await stockController.getAllInstruments());
+});
+
 export default router;
