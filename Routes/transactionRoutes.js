@@ -51,6 +51,7 @@ router.post("/createTransaction/:userId", AuthMiddleware, async (req, res) => {
       categoriaNombre: req.body.categoriaNombre,
       montoConsumido: req.body.montoConsumido,
       fecha: req.body.fecha,
+      tipo: req.body.tipo,
     };
 
     const result = await transactionController.createTransaction(

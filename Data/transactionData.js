@@ -7,11 +7,13 @@ const collectionTransactions = "transacciones";
 async function createTransaction(userId, transaction) {
   try {
     const db = await connection();
-    const userRef = db.collection(collectionUsers).doc(userId);
-    const transactionRef = userRef
+    const userRef = await db.collection(collectionUsers).doc(userId);
+    const transactionRef = await userRef
       .collection(collectionTransactions)
       .add(transaction);
-    return { success: true, status: 200, data: transaction };
+    const transactionId = transactionRef.id;
+    transaction.transactionIdid = transactionId;
+    return { success: true, status: 201, data: transaction };
   } catch (error) {
     throw error;
   }
