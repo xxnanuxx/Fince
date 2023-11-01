@@ -14,7 +14,9 @@ async function getAllInstruments() {
     allInstruments = allInstruments.concat(await getGovernmentBonds());
     allInstruments = allInstruments.concat(await getInvestmentFund());
     return allInstruments;
-  } catch {}
+  } catch {
+    console.error("Error obtaining everything");
+  }
 }
 
 //Devuelve todos los cedears disponibles

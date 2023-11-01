@@ -32,11 +32,6 @@ router.get("/simbolo/:simbolo", async (req, res) => {
 });
 
 router.post("/TODOS", async (req, res) => {
-  let numero = parseInt(1);
-  if (!numero) {
-    console.log("todos putos");
-  }
-
   res.json(await stockController.getAllInstruments());
 });
 
