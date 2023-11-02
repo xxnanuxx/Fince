@@ -4,27 +4,36 @@ import categoryController from "./categoryController.js";
 
 async function createTransaction(userId, transaction) {
   try {
-    if (validateTransaction(transaction)) {
+    if (!transaction.financiera && validateTransaction(transaction)) {
       const maxAmount = await categoryController.getMaxAmount(
         userId,
         transaction.categoriaId
       );
-      const spentAmount = await categoryController.getSpentAmount(
-        userId,
-        transaction.categoriaId
-      );
-      const amount = transaction.montoConsumido;
-      if (maxAmount - spentAmount > amount) {
-        await categoryController.applyAmount(
+      if (maxAmount) {
+        const spentAmount = await categoryController.getSpentAmount(
           userId,
-          transaction.categoriaId,
-          transaction.montoConsumido
+          transaction.categoriaId
         );
-
-        return await transactionData.createTransaction(userId, transaction);
-      } else {
-        throw new CustomError("Insufficient balance", 400);
+        const amount = transaction.montoConsumido;
+        if (maxAmount - spentAmount > amount || transaction.tipo) {
+          if (!transaction.tipo) {
+            await categoryController.applyAmount(
+              userId,
+              transaction.categoriaId,
+              transaction.montoConsumido
+            );
+          }
+          return await transactionData.createTransaction(userId, transaction);
+        } else {
+          throw new CustomError("Insufficient balance", 400);
+        }
       }
+    } else if (validateTransaction(transaction)) {
+      const transactionResult = await transactionData.createTransaction(
+        userId,
+        transaction
+      );
+      return transactionResult;
     }
   } catch (error) {
     throw error;
@@ -43,19 +52,16 @@ async function getTransactions(userId) {
 
     transactions.forEach((transaction) => {
       let tipo = null;
-      let i = 0;
-      while (i < categories.length && !tipo) {
-        if (transaction.categoriaId == categories[i].id) {
-          tipo = categories[i].tipo;
-          if (tipo == 0) {
-            console.log("expense");
-            expenseAmount += transactions[i].montoConsumido;
-          } else {
-            console.log("income");
-            incomeAmount += transactions[i].montoConsumido;
-          }
+      let categorySearch = categories.find(
+        (cat) => cat.id === transaction.categoriaId
+      );
+      if (transaction.categoriaId == categorySearch.id) {
+        tipo = categorySearch.tipo;
+        if (tipo == 0) {
+          expenseAmount += transaction.montoConsumido;
+        } else {
+          incomeAmount += transaction.montoConsumido;
         }
-        i++;
       }
     });
     return {
@@ -96,8 +102,9 @@ function validateTransaction(transaction) {
   if (!transaction.fecha) {
     throw new CustomError("Invalid date in new transaction", 400);
   }
-  if (!transaction.fecha) {
-    throw new CustomError("Invalid date", 400);
+
+  if (transaction.tipo === null) {
+    throw new CustomError("Invalid type", 400);
   }
 
   return true;
@@ -107,4 +114,5 @@ export default {
   createTransaction,
   getTransactions,
   deleteTransaction,
+  validateTransaction,
 };

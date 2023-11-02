@@ -1,4 +1,3 @@
-import { CollectionGroup } from "firebase-admin/firestore";
 import connection from "../Data/connection.js";
 import CustomError from "../Utils/customError.js";
 
@@ -27,11 +26,14 @@ async function createCategory(userId, category) {
     const db = await connection();
     const userRef = await db.collection(collectionUsers).doc(userId);
     const categoryRef = await userRef.collection(collectionCategories);
-    await categoryRef.add(category);
+    const categoryDoc = await categoryRef.add(category);
+    const categoryId = categoryDoc.id;
+
     return {
       success: true,
       status: 201,
       message: `Category ${category.nombre} has been successfully created`,
+      data: categoryId,
     };
   } catch (error) {
     throw error;
@@ -51,10 +53,8 @@ async function updateCategory(userId, categoryId, category) {
       await categoryRef.update({
         nombre: category.nombre,
         descripcion: category.descripcion,
-        montoMax: category.montoMaxConv,
-        tipo: category.tipoConv,
-        montoMaxConv: category.montoMaxConv,
-        tipoConv: category.tipoConv,
+        montoMax: category.montoMax,
+        tipo: category.tipo,
       });
 
       return {
@@ -145,6 +145,29 @@ async function applyAmount(userId, categoryId, amount) {
   }
 }
 
+async function getCategoryById(userId, categoryId) {
+  try {
+    const db = await connection();
+    const usuarioRef = db.collection(collectionUsers).doc(userId);
+    const categoriaRef = usuarioRef
+      .collection(collectionCategories)
+      .doc(categoryId);
+    const categoryDoc = await categoriaRef.get();
+    if (categoryDoc.exists) {
+      const categoryData = categoryDoc.data();
+      return { success: true, status: 200, data: categoryData };
+    } else {
+      return {
+        success: false,
+        status: 404,
+        message: "Categoría no encontrada",
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 export default {
   getCategories,
   createCategory,
@@ -153,4 +176,5 @@ export default {
   applyAmount,
   getMaxAmount,
   getSpentAmount,
+  getCategoryById,
 };

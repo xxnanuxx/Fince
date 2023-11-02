@@ -1,6 +1,7 @@
 import express from "express";
 import AuthMiddleware from "../middleware/authMiddleware.js";
 import transactionController from "../Controllers/transactionController.js";
+import CustomError from "../Utils/customError.js";
 
 const router = express.Router();
 /**
@@ -50,6 +51,7 @@ router.post("/createTransaction/:userId", AuthMiddleware, async (req, res) => {
       categoriaNombre: req.body.categoriaNombre,
       montoConsumido: req.body.montoConsumido,
       fecha: req.body.fecha,
+      tipo: req.body.tipo,
     };
 
     const result = await transactionController.createTransaction(
@@ -60,7 +62,11 @@ router.post("/createTransaction/:userId", AuthMiddleware, async (req, res) => {
     res.status(result.status).json(result.data);
   } catch (error) {
     console.log("Error in createTransaction {POST}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -115,7 +121,11 @@ router.get("/getTransactions/:userId", AuthMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.log("Error in getTransactions {GET}: " + error.message);
-    res.status(error.status).send(error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -161,7 +171,11 @@ router.delete(
       res.status(result.status).json({ message: result.message });
     } catch (error) {
       console.log("Error in deleteTransaction {DELETE}: " + error.message);
-      res.status(error.status).send(error.message);
+      if (error instanceof CustomError) {
+        res.status(error.status).json({ error: error.message });
+      } else {
+        res.status(500).send("Internal Server Error");
+      }
     }
   }
 );
@@ -210,7 +224,11 @@ router.get(
       //coding
     } catch (error) {
       console.log("Error in getTransactionById {GET}: " + error.message);
-      res.status(error.status).send(error.message);
+      if (error instanceof CustomError) {
+        res.status(error.status).json({ error: error.message });
+      } else {
+        res.status(500).send("Internal Server Error");
+      }
     }
   }
 );
@@ -266,7 +284,11 @@ router.put(
       //coding
     } catch (error) {
       console.log("Error in updateTransaction {PUT}: " + error.message);
-      res.status(error.status).send(error.message);
+      if (error instanceof CustomError) {
+        res.status(error.status).json({ error: error.message });
+      } else {
+        res.status(500).send("Internal Server Error");
+      }
     }
   }
 );

@@ -1,6 +1,7 @@
 import express from "express";
 import AuthMiddleware from "../middleware/authMiddleware.js";
 import CategoryController from "../Controllers/categoryController.js";
+import CustomError from "../Utils/customError.js";
 
 const router = express.Router();
 /**
@@ -43,7 +44,11 @@ router.get("/:idUser", AuthMiddleware, async (req, res) => {
     res.status(result.status).json(result.data);
   } catch (error) {
     console.error("Error in getCategories {GET}: " + error.message);
-    res.status(error.status).json({ error: error.message });
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -93,7 +98,11 @@ router.post("/:userId", AuthMiddleware, async (req, res) => {
     res.status(result.status).json(result.status);
   } catch (error) {
     console.error("Error in createCategory {POST}: " + error.message);
-    res.status(error.status).json({ error: error.message });
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -167,7 +176,11 @@ router.put("/update/:userId/:categoryId", AuthMiddleware, async (req, res) => {
       .json({ message: result.message, category: result.category });
   } catch (error) {
     console.error("Error in UpdateCategory {PUT}: " + error.message);
-    res.status(error.status).json({ error: error.message });
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 /**
@@ -213,7 +226,11 @@ router.delete(
       res.status(result.status).json({ message: result.message });
     } catch (error) {
       console.error("Error in DeleteCategory {DELETE}: " + error.message);
-      res.status(error.status).json({ error: error.message });
+      if (error instanceof CustomError) {
+        res.status(error.status).json({ error: error.message });
+      } else {
+        res.status(500).send("Internal Server Error");
+      }
     }
   }
 );
