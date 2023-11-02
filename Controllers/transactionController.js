@@ -15,7 +15,7 @@ async function createTransaction(userId, transaction) {
           transaction.categoriaId
         );
         const amount = transaction.montoConsumido;
-        if (maxAmount - spentAmount > amount || transaction.tipo) {
+        if (maxAmount - spentAmount >= amount || transaction.tipo) {
           if (!transaction.tipo) {
             await categoryController.applyAmount(
               userId,
@@ -74,9 +74,14 @@ async function getTransactions(userId) {
   }
 }
 
-async function deleteTransaction(userId, transactionId) {
+async function deleteTransaction(userId, transaction) {
   try {
-    return await transactionData.deleteTransaction(userId, transactionId);
+    await categoryController.applyAmount(
+      userId,
+      transaction.categoriaId,
+      parseFloat(-transaction.montoConsumido) //Mando saldo negativo para restar consumo a la categoria
+    );
+    return await transactionData.deleteTransaction(userId, transaction.id);
   } catch (error) {
     throw error;
   }

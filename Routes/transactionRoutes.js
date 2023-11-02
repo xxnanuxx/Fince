@@ -58,7 +58,6 @@ router.post("/createTransaction/:userId", AuthMiddleware, async (req, res) => {
       req.params.userId,
       transaction
     );
-
     res.status(result.status).json(result.data);
   } catch (error) {
     console.log("Error in createTransaction {POST}: " + error.message);
@@ -164,9 +163,18 @@ router.delete(
   AuthMiddleware,
   async (req, res) => {
     try {
+      const transaction = {
+        titulo: req.body.titulo,
+        categoriaId: req.body.categoriaId,
+        categoriaNombre: req.body.categoriaNombre,
+        montoConsumido: req.body.montoConsumido,
+        fecha: req.body.fecha,
+        tipo: req.body.tipo,
+        id: req.body.id,
+      };
       const result = await transactionController.deleteTransaction(
         req.params.userId,
-        req.params.transactionId
+        transaction
       );
       res.status(result.status).json({ message: result.message });
     } catch (error) {

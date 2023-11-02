@@ -12,7 +12,7 @@ async function createTransaction(userId, transaction) {
       .collection(collectionTransactions)
       .add(transaction);
     const transactionId = transactionRef.id;
-    transaction.transactionIdid = transactionId;
+    transaction.id = transactionId;
     return { success: true, status: 201, data: transaction };
   } catch (error) {
     throw error;

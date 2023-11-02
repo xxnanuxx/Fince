@@ -46,7 +46,7 @@ async function obtainTokenIol() {
     );
     console.log(process.env.IOL_ACCESS_TOKEN);
     return res;
-  } catch {
+  } catch(error) {
     console.error(error.status);
   }
 }

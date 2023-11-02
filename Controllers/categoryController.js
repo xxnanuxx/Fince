@@ -81,10 +81,10 @@ function validateCategory(category) {
   if (!nombre || nombre == "") {
     throw new CustomError("La categoria debe tener un nombre", 400);
   }
-  if (montoMaxConv <= 0 && tipoConv == 1) {
+  if (montoMaxConv <= 0 && tipoConv == 0) {
     throw new CustomError("El monto para un Egreso debe ser mayor a 0", 400);
   }
-  if (montoMaxConv > 0 && tipoConv == 0) {
+  if (montoMaxConv > 0 && tipoConv == 1) {
     throw new CustomError("El monto para un Ingreso debe ser 0", 400);
   }
 
