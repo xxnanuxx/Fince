@@ -81,10 +81,10 @@ function validateCategory(category) {
   if (!nombre || nombre == "") {
     throw new CustomError("La categoria debe tener un nombre", 400);
   }
-  if (montoMaxConv <= 0 && tipoConv == 0) {
+  if (financiera === "false" && montoMaxConv <= 0 && tipoConv == 0) {
     throw new CustomError("El monto para un Egreso debe ser mayor a 0", 400);
   }
-  if (montoMaxConv > 0 && tipoConv == 1) {
+  if (financiera === "false" && montoMaxConv > 0 && tipoConv == 1) {
     throw new CustomError("El monto para un Ingreso debe ser 0", 400);
   }
 
@@ -94,10 +94,18 @@ function validateCategory(category) {
     montoMax: montoMaxConv,
     tipo: tipoConv,
     montoConsumido: montoConsumido || 0,
-    finaciera: financiera,
+    financiera: financiera,
   };
 
   return validCategory;
+}
+
+async function getCategoryByName(userId, name) {
+  try {
+    return categoryData.getCategoryByName(userId, name);
+  } catch (error) {
+    throw error;
+  }
 }
 
 export default {
@@ -109,4 +117,5 @@ export default {
   getSpentAmount,
   applyAmount,
   getCategoryById,
+  getCategoryByName,
 };

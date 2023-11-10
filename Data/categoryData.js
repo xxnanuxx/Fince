@@ -155,7 +155,43 @@ async function getCategoryById(userId, categoryId) {
     const categoryDoc = await categoriaRef.get();
     if (categoryDoc.exists) {
       const categoryData = categoryDoc.data();
+      categoryData.id = categoryId;
       return { success: true, status: 200, data: categoryData };
+    } else {
+      return {
+        success: false,
+        status: 404,
+        message: "Categoría no encontrada",
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getCategoryByName(userId, categoryName) {
+  try {
+    const db = await connection();
+    const usuarioRef = db.collection(collectionUsers).doc(userId);
+    const querySnapshot = await usuarioRef
+      .collection(collectionCategories)
+      .where("nombre", "==", categoryName)
+      .get();
+
+    if (!querySnapshot.empty) {
+      const categoryDoc = querySnapshot.docs[0];
+
+      if (categoryDoc && categoryDoc.exists) {
+        const category = categoryDoc.data();
+        category.id = categoryDoc.id;
+        return { success: true, status: 200, data: category };
+      } else {
+        return {
+          success: false,
+          status: 404,
+          message: "Categoría no encontrada",
+        };
+      }
     } else {
       return {
         success: false,
@@ -177,4 +213,5 @@ export default {
   getMaxAmount,
   getSpentAmount,
   getCategoryById,
+  getCategoryByName,
 };

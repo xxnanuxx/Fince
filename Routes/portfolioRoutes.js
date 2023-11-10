@@ -10,10 +10,12 @@ router.post("/buyAsset/:userId", AuthMiddleware, async (req, res) => {
     const newAsset = {
       simbolo: req.body.simbolo,
       nombre: req.body.nombre,
-      tipo: req.body.tipo,
+      cantidad: req.body.cantidad,
       valorDeCompra: req.body.valorDeCompra,
       fechaDeCompra: req.body.fechaDeCompra,
+      tipo: req.body.tipo,
       categoriaId: req.body.categoriaId,
+      activoId: req.body.activoId,
     };
 
     const result = await portfolioController.buyAsset(
@@ -72,8 +74,20 @@ router.get(
   }
 );
 
-router.delete("/sellAsset", AuthMiddleware, async (req, res) => {
+router.put("/sellAsset/:userId", AuthMiddleware, async (req, res) => {
   try {
+    const assetId = req.body.activoId;
+    const quantity = req.body.cantidad;
+    const salePrice = req.body.precioDeVenta;
+    const userId = req.params.userId;
+
+    const result = await portfolioController.sellAsset(
+      userId,
+      assetId,
+      quantity,
+      salePrice
+    );
+    res.status(result.status).json(result.message);
   } catch (error) {
     console.log("Error in getTransactions {GET}: " + error.message);
     if (error instanceof CustomError) {
