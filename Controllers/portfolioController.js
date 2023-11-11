@@ -9,6 +9,7 @@ async function buyAsset(userId, newAsset) {
     // ingreso 1 / egreso 0
     let resultCategory = null;
     let categoryId = null;
+    let result = null;
 
     if (newAsset.categoriaId !== "") {
       resultCategory = await categoryController.getCategoryById(
@@ -26,12 +27,13 @@ async function buyAsset(userId, newAsset) {
       );
       if (resultCategory.success) {
         categoryId = resultCategory.data.id;
+        newAsset.categoriaId = resultCategory.data.id;
       }
     }
     if (resultCategory === null || !resultCategory.success) {
       const newCategory = {
         nombre: newAsset.tipo,
-        descripcion: newAsset.nombre,
+        descripcion: newAsset.tipo,
         montoMax: 0,
         tipo: 0,
         montoConsumido: newAsset.valorDeCompra,
@@ -101,9 +103,7 @@ async function buyAsset(userId, newAsset) {
       );
       const currentQuantity = calculateQuantity(histCantidadesActualizado);
 
-      //actualizacion de categorias?????????????
-
-      return await portfolioData.updateAsset(
+      const resultUpdate = await portfolioData.updateAsset(
         userId,
         newAsset.activoId,
         currentQuantity,
@@ -111,6 +111,13 @@ async function buyAsset(userId, newAsset) {
         histCantidadesActualizado,
         histPreciosActualizado
       );
+
+      result = {
+        success: true,
+        status: 200,
+        message: "Asset has been successfully REpurchased",
+      };
+      return result;
 
       //Si no existe genero el activo en portfolio y genero transanccion
     } else if (
@@ -132,7 +139,14 @@ async function buyAsset(userId, newAsset) {
         userId,
         transaction
       );
-      return await portfolioData.buyAsset(userId, newAsset);
+      const resultBuy = await portfolioData.buyAsset(userId, newAsset);
+
+      result = {
+        success: true,
+        status: 200,
+        message: "New Asset has been purchased successfully",
+      };
+      return result;
     } else {
       throw new CustomError(
         "The purchase of the asset cannot be carried out",
@@ -213,8 +227,16 @@ async function sellAsset(userId, assetId, quantity, salePrice) {
         tipo: 1, // ingreso 1 / egreso 0
         financiera: true,
       };
-
-      return await transactionController.createTransaction(userId, transaction);
+      const resultTransacction = await transactionController.createTransaction(
+        userId,
+        transaction
+      );
+      result = {
+        success: true,
+        status: 200,
+        message: "Asset has been sold successfully",
+      };
+      return result;
     }
     throw new CustomError(
       "The transaction related to the sale of the assets could not be generated",
@@ -310,6 +332,7 @@ async function addActualPriceAndVariation(result) {
             parseFloat(stocks[i].valorDeCompra)) *
             100) /
           parseFloat(stocks[i].valorDeCompra);
+        stocks[i].variacion = parseInt(stocks[i].variacion);
       }
     } catch (error) {}
   }

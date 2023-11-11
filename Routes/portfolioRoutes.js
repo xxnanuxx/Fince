@@ -25,7 +25,7 @@ router.post("/buyAsset/:userId", AuthMiddleware, async (req, res) => {
 
     res.status(result.status).json(result.data);
   } catch (error) {
-    console.log("Error in buyAsset {POST}: " + error.message);
+    console.error("Error in buyAsset {POST}: " + error.message);
     if (error instanceof CustomError) {
       res.status(error.status).json({ error: error.message });
     } else {
@@ -38,11 +38,11 @@ router.get("/getPortfolio/:userId", AuthMiddleware, async (req, res) => {
   try {
     const result = await portfolioController.getPortfolio(req.params.userId);
     res.status(result.status).json({
-      porfolio: result.data,
+      portfolio: result.data,
       totalInvestments: result.totalInvestments,
     });
   } catch (error) {
-    console.log("Error in getPortfolio {GET}: " + error.message);
+    console.error("Error in getPortfolio {GET}: " + error.message);
     if (error instanceof CustomError) {
       res.status(error.status).json({ error: error.message });
     } else {
@@ -64,7 +64,7 @@ router.get(
         asset: result.data,
       });
     } catch (error) {
-      console.log("Error in getAssetById {GET}: " + error.message);
+      console.error("Error in getAssetById {GET}: " + error.message);
       if (error instanceof CustomError) {
         res.status(error.status).json({ error: error.message });
       } else {
@@ -80,16 +80,16 @@ router.put("/sellAsset/:userId", AuthMiddleware, async (req, res) => {
     const quantity = req.body.cantidad;
     const salePrice = req.body.precioDeVenta;
     const userId = req.params.userId;
-
     const result = await portfolioController.sellAsset(
       userId,
       assetId,
       quantity,
       salePrice
     );
+
     res.status(result.status).json(result.message);
   } catch (error) {
-    console.log("Error in getTransactions {GET}: " + error.message);
+    console.error("Error in getTransactions {GET}: " + error.message);
     if (error instanceof CustomError) {
       res.status(error.status).json({ error: error.message });
     } else {
