@@ -87,6 +87,82 @@ async function deleteTransaction(userId, transaction) {
   }
 }
 
+async function getDataGraph(userId) {
+  try {
+    const transactions = (await transactionData.getTransactions(userId))
+      .transactions;
+
+    const getYearMonth = (dateString) => {
+      const [day, month, year] = dateString.split("/");
+      return { year, month };
+    };
+
+    const monthNames = [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
+    ];
+
+    const groupedTransactions = {};
+
+    transactions.forEach((transaction) => {
+      const { year, month } = getYearMonth(transaction.fecha);
+
+      if (!groupedTransactions[year]) {
+        groupedTransactions[year] = {};
+      }
+
+      if (!groupedTransactions[year][month]) {
+        groupedTransactions[year][month] = { ingresos: 0, egresos: 0 };
+      }
+
+      if (transaction.tipo === 1) {
+        groupedTransactions[year][month].ingresos += transaction.montoConsumido;
+      } else {
+        groupedTransactions[year][month].egresos += transaction.montoConsumido;
+      }
+    });
+
+    const dataBarChart = [];
+
+    Object.keys(groupedTransactions).forEach((year) => {
+      Object.keys(groupedTransactions[year]).forEach((month) => {
+        const { ingresos, egresos } = groupedTransactions[year][month];
+        dataBarChart.push({
+          year,
+          month: monthNames[parseInt(month, 10) - 1],
+          ingresos,
+          egresos,
+        });
+      });
+    });
+
+    dataBarChart.sort((a, b) => {
+      if (a.year !== b.year) {
+        return a.year - b.year;
+      }
+      return monthNames.indexOf(a.month) - monthNames.indexOf(b.month);
+    });
+
+    console.log(dataBarChart);
+
+    const result = { success: true, status: 200, data: dataBarChart };
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
 //Validations
 
 function validateTransaction(transaction) {
@@ -120,4 +196,5 @@ export default {
   getTransactions,
   deleteTransaction,
   validateTransaction,
+  getDataGraph,
 };

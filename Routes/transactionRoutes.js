@@ -2,6 +2,7 @@ import express from "express";
 import AuthMiddleware from "../middleware/authMiddleware.js";
 import transactionController from "../Controllers/transactionController.js";
 import CustomError from "../Utils/customError.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 /**
@@ -300,5 +301,19 @@ router.put(
     }
   }
 );
+
+router.get("/getDataGraph/:userId", authMiddleware, async (req, res) => {
+  try {
+    const result = await transactionController.getDataGraph(req.params.userId);
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error in getDataGraph {GET}: " + error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  }
+});
 
 export default router;
