@@ -21,7 +21,18 @@ async function login(mail, password) {
         const id = user.id;
         const mail = user.userData.correo;
         const token = generatedToken(id, mail);
-        return { success: true, status: 200, user: user, token: token };
+
+        const userResponse = {
+          userId: user.id,
+          token: token,
+          nombre: user.userData.nombre,
+          apellido: user.userData.apellido,
+          correo: user.userData.correo,
+          ingreso: user.userData.ingreso,
+          egreso: user.userData.egreso,
+          perfil: user.userData.perfil,
+        };
+        return { success: true, status: 200, user: userResponse };
       }
     }
   } catch (error) {
@@ -40,15 +51,26 @@ async function createUser(user) {
     if (validateUserValues(user)) {
       user.contrasena = await bcrypt.hash(user.contrasena, 10);
       user = { ...user, ingreso: 0, egreso: 0, perfil: 0 };
-      const newUser = await userData.createUser(user);
-      const token = generatedToken(newUser.newUserId, newUser.newUser.correo);
+      const response = await userData.createUser(user);
+      const token = generatedToken(response.newUserId, response.newUser.correo);
+
+      console.log(response);
+
+      const userResponse = {
+        userId: response.newUserId,
+        token: token,
+        nombre: response.newUser.nombre,
+        apellido: response.newUser.apellido,
+        correo: response.newUser.correo,
+        ingreso: response.newUser.ingreso,
+        egreso: response.newUser.egreso,
+        perfil: response.newUser.perfil,
+      };
 
       return {
-        success: newUser.success,
-        status: newUser.status,
-        newUserId: newUser.newUserId,
-        newUserData: newUser.newUser,
-        token: token,
+        success: response.success,
+        status: response.status,
+        newUser: userResponse,
       };
     }
   } catch (error) {

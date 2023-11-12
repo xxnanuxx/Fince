@@ -86,9 +86,7 @@ router.post("/login", async (req, res) => {
       req.body.correo,
       req.body.contrasena
     );
-    res
-      .status(result.status)
-      .json({ userId: result.user.id, user: result.user, token: result.token });
+    res.status(result.status).json(result.user);
   } catch (error) {
     console.log("Error in login {POST}: " + error.message);
     if (error instanceof CustomError) {
@@ -135,11 +133,7 @@ router.post("/login", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const result = await UserController.createUser(req.body);
-    res.status(result.status).json({
-      userId: result.newUserId,
-      user: result.newUserData,
-      token: result.token,
-    });
+    res.status(result.status).json(result.newUser);
   } catch (error) {
     console.log("Error in createUser {POST}: " + error.message);
     if (error instanceof CustomError) {
