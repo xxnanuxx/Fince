@@ -1,37 +1,38 @@
 import express from "express";
 import stockController from "../Controllers/stockController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/cedears", async (req, res) => {
+router.post("/cedears", authMiddleware, async (req, res) => {
   res.json(await stockController.getCedears());
 });
 
-router.post("/acciones", async (req, res) => {
+router.post("/acciones", authMiddleware, async (req, res) => {
   res.json(await stockController.getStocks());
 });
 
-router.post("/titulosPublicos", async (req, res) => {
+router.post("/titulosPublicos", authMiddleware, async (req, res) => {
   res.json(await stockController.getGovernmentBonds());
 });
 
-router.post("/obligacionesNegociables", async (req, res) => {
+router.post("/obligacionesNegociables", authMiddleware, async (req, res) => {
   res.json(await stockController.getCorporateBonds());
 });
 
-router.post("/FCI", async (req, res) => {
+router.post("/FCI", authMiddleware, async (req, res) => {
   res.json(await stockController.getInvestmentFund());
 });
 
-router.get("/FCI/:simbolo", async (req, res) => {
+router.get("/FCI/:simbolo", authMiddleware, async (req, res) => {
   res.json(await stockController.getInvestmentFundData(req.params.simbolo));
 });
 
-router.get("/simbolo/:simbolo", async (req, res) => {
+router.get("/simbolo/:simbolo", authMiddleware, async (req, res) => {
   res.json(await stockController.getSimbolData(req.params.simbolo));
 });
 
-router.post("/TODOS", async (req, res) => {
+router.post("/TODOS", authMiddleware, async (req, res) => {
   res.json(await stockController.getAllInstruments());
 });
 
