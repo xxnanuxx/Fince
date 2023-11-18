@@ -41,9 +41,9 @@ async function getAssetById(userId, assetId) {
   try {
     const db = await connection();
     const usuarioRef = db.collection(collectionUsers).doc(userId);
-    const portfolioRef = usuarioRef.collection(collectionPortfolio);
+    const portfolioRef = await usuarioRef.collection(collectionPortfolio);
     const assetDoc = await portfolioRef.doc(assetId).get();
-    if (assetDoc.exists) {
+    if (await assetDoc.exists) {
       const assetData = await assetDoc.data();
       return { success: true, status: 200, data: assetData };
     } else {

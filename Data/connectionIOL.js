@@ -26,7 +26,7 @@ async function connectionIol() {
     }
 
     //console.log(process.env.IOL_ACCESS_TOKEN);
-    console.log("IolAccessToken ok");
+    //console.log("IolAccessToken ok");
 
     return instance;
   } catch {
@@ -37,7 +37,7 @@ async function connectionIol() {
 async function obtainTokenIol() {
   try {
     const res = await connectionIol();
-    //console.log(res.access_token);
+
     process.env.IOL_ACCESS_TOKEN = res.access_token;
     process.env.IOL_REFRESH_TOKEN = res.refresh_token;
     process.env.IOL_EXPIRES_IN = res.expires_in;
@@ -45,8 +45,7 @@ async function obtainTokenIol() {
       () => refreshTokenIol(),
       parseInt(process.env.IOL_EXPIRES_IN) * 750
     );
-    //console.log(process.env.IOL_ACCESS_TOKEN);
-    console.log("IolAccessToken ok");
+
     return res;
   } catch (error) {
     console.error(error.status);
@@ -80,13 +79,13 @@ async function obtainRefreshTokenIol() {
 
 async function refreshTokenIol() {
   try {
-    console.log("se ejecuta el refresh");
+    //console.log("se ejecuta el refresh");
     const res = await obtainRefreshTokenIol();
     process.env.IOL_ACCESS_TOKEN = res.access_token;
     process.env.IOL_REFRESH_TOKEN = res.refresh_token;
     process.env.IOL_EXPIRES_IN = res.expires_in;
     //console.log(process.env.IOL_ACCESS_TOKEN);
-    console.log("Refresh IolAccessToken ok");
+    //console.log("Refresh IolAccessToken ok");
   } catch {
     console.error("Error refreshing token from IOL API: " + error.message);
   }

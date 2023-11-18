@@ -17,7 +17,8 @@ async function login(mail, password) {
     if (user) {
       const stringPass = password.toString();
       const hashPass = user.userData.contrasena.toString();
-      if (checkPassword(stringPass, hashPass)) {
+
+      if (await checkPassword(stringPass, hashPass)) {
         const id = user.id;
         const mail = user.userData.correo;
         const token = generatedToken(id, mail);
@@ -112,13 +113,13 @@ async function updateUser(userId, userUpdate) {
   }
 }
 
-function checkPassword(stringPass, hashPass) {
-  if (!bcrypt.compare(stringPass, hashPass)) {
-    return new CustomError("Incorrect password", 401);
+async function checkPassword(stringPass, hashPass) {
+  const result = await bcrypt.compare(stringPass, hashPass);
+  if (!result) {
+    throw new CustomError("Incorrect password", 401);
   }
   return true;
 }
-
 function generatedToken(id, mail) {
   const token = jwt.sign({ id, mail }, process.env.SECRET, { expiresIn: "4h" });
   return token;
