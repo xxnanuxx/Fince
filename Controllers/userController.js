@@ -55,7 +55,7 @@ async function createUser(user) {
       const response = await userData.createUser(user);
       const token = generatedToken(response.newUserId, response.newUser.correo);
 
-      console.log(response);
+      //console.log(response);
 
       const userResponse = {
         userId: response.newUserId,

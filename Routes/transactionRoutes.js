@@ -53,6 +53,7 @@ router.post("/createTransaction/:userId", AuthMiddleware, async (req, res) => {
       montoConsumido: req.body.montoConsumido,
       fecha: req.body.fecha,
       tipo: req.body.tipo,
+      financiera: req.body.financiera,
     };
 
     const result = await transactionController.createTransaction(
@@ -159,7 +160,7 @@ router.get("/getTransactions/:userId", AuthMiddleware, async (req, res) => {
  *       500:
  *         $ref: '#/components/responses/InternalError'
  */
-router.delete(
+router.post(
   "/deleteTransaction/:userId/:transactionId",
   AuthMiddleware,
   async (req, res) => {
@@ -301,6 +302,56 @@ router.put(
     }
   }
 );
+/**
+ * @openapi
+ * /getDataGraph/{userId}:
+ *   get:
+ *     summary: Obtener datos del gráfico para un usuario específico.
+ *     description: Este endpoint devuelve los datos del gráfico asociados a un usuario.
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID del usuario para el cual se solicitan los datos del gráfico.
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Éxito. Devuelve los datos del gráfico.
+ *         content:
+ *           application/json:
+ *             example:
+ *               {
+ *                 "graphData": { ... }, // Datos del gráfico
+ *                 "metadata": { ... }   // Metadatos adicionales, si los hay
+ *               }
+ *       400:
+ *         description: Error de solicitud. Puede deberse a un formato de ID de usuario no válido.
+ *         content:
+ *           application/json:
+ *             example:
+ *               {
+ *                 "error": "Formato de ID de usuario no válido."
+ *               }
+ *       401:
+ *         description: No autorizado. Se requiere autenticación.
+ *         content:
+ *           application/json:
+ *             example:
+ *               {
+ *                 "error": "Token de autenticación no válido."
+ *               }
+ *       500:
+ *         description: Error interno del servidor. Puede deberse a un problema en la base de datos o en el servidor.
+ *         content:
+ *           application/json:
+ *             example:
+ *               {
+ *                 "error": "Error interno del servidor."
+ *               }
+ */
 
 router.get("/getDataGraph/:userId", authMiddleware, async (req, res) => {
   try {

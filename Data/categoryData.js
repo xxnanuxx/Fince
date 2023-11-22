@@ -135,7 +135,10 @@ async function applyAmount(userId, categoryId, amount) {
     const categoryData = (await categoryRef.get()).data();
 
     if (categoryData) {
-      const montoConsumido = categoryData.montoConsumido + amount;
+      const montoConsumido =
+        categoryData.montoConsumido + amount > 0
+          ? categoryData.montoConsumido + amount
+          : 0;
       await categoryRef.update({
         montoConsumido: montoConsumido,
       });

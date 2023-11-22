@@ -6,7 +6,6 @@ import stockController from "./stockController.js";
 
 async function buyAsset(userId, newAsset) {
   try {
-    // ingreso 1 / egreso 0
     let resultCategory = null;
     let categoryId = null;
     let result = null;
@@ -71,12 +70,14 @@ async function buyAsset(userId, newAsset) {
     let resultTransacction = null;
 
     //Existe el activo?
+
     let resultAsset = null;
     if (newAsset.activoId != "") {
       resultAsset = await portfolioData.getAssetById(userId, newAsset.activoId);
     }
 
     //Si existe actualizo el activo del portfolio y (categoria?) luego genero transaccion
+
     if (
       resultAsset != null &&
       resultAsset.success &&
@@ -112,6 +113,14 @@ async function buyAsset(userId, newAsset) {
         histPreciosActualizado
       );
 
+      //actualizar categoria
+
+      const resultCategory = await categoryController.applyAmount(
+        userId,
+        categoryId,
+        transaction.montoConsumido
+      );
+
       result = {
         success: true,
         status: 200,
@@ -140,6 +149,12 @@ async function buyAsset(userId, newAsset) {
         transaction
       );
       const resultBuy = await portfolioData.buyAsset(userId, newAsset);
+
+      const resultCategory = await categoryController.applyAmount(
+        userId,
+        categoryId,
+        transaction.montoConsumido
+      );
 
       result = {
         success: true,
@@ -231,6 +246,13 @@ async function sellAsset(userId, assetId, quantity, salePrice) {
         userId,
         transaction
       );
+
+      const resultUpdateCategory = await categoryController.applyAmount(
+        userId,
+        resultAsset.data.categoriaId,
+        -monto
+      );
+
       result = {
         success: true,
         status: 200,

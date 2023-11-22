@@ -5,35 +5,65 @@ import categoryController from "./categoryController.js";
 async function createTransaction(userId, transaction) {
   try {
     if (!transaction.financiera && validateTransaction(transaction)) {
-      const maxAmount = await categoryController.getMaxAmount(
-        userId,
-        transaction.categoriaId
-      );
-      if (maxAmount) {
+      //entra si no es financiera y si es valida la transaccion
+
+      if ((transaction.tipo = 0)) {
+        // caso de transaccion de egreso
+
+        const maxAmount = await categoryController.getMaxAmount(
+          userId,
+          transaction.categoriaId
+        );
+
         const spentAmount = await categoryController.getSpentAmount(
           userId,
           transaction.categoriaId
         );
+        //consumo que ingresa
+
         const amount = transaction.montoConsumido;
-        if (maxAmount - spentAmount >= amount || transaction.tipo) {
-          if (!transaction.tipo) {
-            await categoryController.applyAmount(
-              userId,
-              transaction.categoriaId,
-              transaction.montoConsumido
-            );
-          }
+
+        //si el monto maximo de la Cat - el monto consumido > que el consumo que ingresa, actualizo el monto consumido
+        if (
+          maxAmount > 0 &&
+          spentAmount >= 0 &&
+          amount >= 0 &&
+          maxAmount - spentAmount >= amount
+        ) {
+          await categoryController.applyAmount(
+            userId,
+            transaction.categoriaId,
+            transaction.montoConsumido
+          );
           return await transactionData.createTransaction(userId, transaction);
         } else {
-          throw new CustomError("Insufficient balance", 400);
+          throw new CustomError(
+            "Insufficient balance at common transaction",
+            400
+          );
         }
+      } else if (validateTransaction(transaction)) {
+        // caso ingreso: solo valido la transaccion
+
+        await categoryController.applyAmount(
+          userId,
+          transaction.categoriaId,
+          transaction.montoConsumido
+        );
+        return await transactionData.createTransaction(userId, transaction);
+      } else {
+        throw new CustomError("Invalid common transaction", 400);
       }
+
+      //si es financiera validamos la trx y la creamos. VER
     } else if (validateTransaction(transaction)) {
       const transactionResult = await transactionData.createTransaction(
         userId,
         transaction
       );
       return transactionResult;
+    } else {
+      throw new CustomError("Invalid financial transacction", 400);
     }
   } catch (error) {
     throw error;
@@ -153,7 +183,7 @@ async function getDataGraph(userId) {
       return monthNames.indexOf(a.month) - monthNames.indexOf(b.month);
     });
 
-    console.log(dataBarChart);
+    //console.log(dataBarChart);
 
     const result = { success: true, status: 200, data: dataBarChart };
 
