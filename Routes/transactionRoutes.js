@@ -324,8 +324,8 @@ router.put(
  *           application/json:
  *             example:
  *               {
- *                 "graphData": { ... }, // Datos del gráfico
- *                 "metadata": { ... }   // Metadatos adicionales, si los hay
+ *                 "graphData": { ... }, # Datos del gráfico
+ *                 "metadata": { ... }   # Metadatos adicionales, si los hay
  *               }
  *       400:
  *         description: Error de solicitud. Puede deberse a un formato de ID de usuario no válido.

@@ -297,7 +297,7 @@ router.delete("/:userId", AuthMiddleware, async (req, res) => {
  *       500:
  *         $ref: '#/components/responses/InternalError'
  */
-//FALTA CODEAR UPDATE USER
+
 router.put(":userId", AuthMiddleware, async (req, res) => {
   try {
     const userNewValues = {

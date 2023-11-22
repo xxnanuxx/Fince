@@ -5,7 +5,7 @@ import portfolioController from "../Controllers/portfolioController.js";
 
 const router = express.Router();
 /**
- * @swagger
+ * @openapi
  * /buyAsset/{userId}:
  *   post:
  *     summary: Comprar un activo para el portafolio de un usuario.
@@ -119,7 +119,7 @@ router.post("/buyAsset/:userId", AuthMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "portfolio": [ ... ], // Lista de activos en el portafolio
+ *                 "portfolio": [ ... ], # Lista de activos en el portafolio
  *                 "totalInvestments": 10000 // Total de inversiones en el portafolio
  *               }
  *       404:
@@ -183,7 +183,7 @@ router.get("/getPortfolio/:userId", AuthMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "asset": { ... } // Información específica del activo
+ *                 "asset": { ... } # Información específica del activo
  *               }
  *       404:
  *         description: No encontrado. El activo con el ID proporcionado no existe en el portafolio.
@@ -225,7 +225,7 @@ router.get(
   }
 );
 /**
- * @swagger
+ * @openapi
  * /sellAsset/{userId}:
  *   put:
  *     summary: Vender un activo del portafolio de un usuario.

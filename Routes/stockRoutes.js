@@ -18,7 +18,7 @@ const router = express.Router();
  *           application/json:
  *             example:
  *               {
- *                 "cedears": [ ... ] // Lista de Cedears
+ *                 "cedears": [ ... ]  # Lista de Cedears
  *               }
  */
 router.post("/cedears", authMiddleware, async (req, res) => {
@@ -39,7 +39,7 @@ router.post("/cedears", authMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "acciones": [ ... ] // Lista de acciones
+ *                 "acciones": [ ... ]  # Lista de acciones
  *               }
  */
 router.post("/acciones", authMiddleware, async (req, res) => {
@@ -60,7 +60,7 @@ router.post("/acciones", authMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "titulosPublicos": [ ... ] // Lista de títulos públicos
+ *                 "titulosPublicos": [ ... ] # Lista de títulos públicos
  *               }
  */
 router.post("/titulosPublicos", authMiddleware, async (req, res) => {
@@ -81,7 +81,7 @@ router.post("/titulosPublicos", authMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "obligacionesNegociables": [ ... ] // Lista de obligaciones negociables
+ *                 "obligacionesNegociables": [ ... ]  # Lista de obligaciones negociables
  *               }
  */
 router.post("/obligacionesNegociables", authMiddleware, async (req, res) => {
@@ -102,7 +102,7 @@ router.post("/obligacionesNegociables", authMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "FCI": [ ... ] // Lista de Fondos Comunes de Inversión
+ *                 "FCI": [ ... ]  # Lista de Fondos Comunes de Inversión
  *               }
  */
 router.post("/FCI", authMiddleware, async (req, res) => {
@@ -130,7 +130,7 @@ router.post("/FCI", authMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "datosFCI": { ... } // Datos específicos del FCI
+ *                 "datosFCI": { ... } # Datos específicos del FCI
  *               }
  *       404:
  *         description: No encontrado. El FCI con el símbolo proporcionado no existe.
@@ -166,7 +166,7 @@ router.get("/FCI/:simbolo", authMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "datosSimbolo": { ... } // Datos específicos del símbolo
+ *                 "datosSimbolo": { ... }  #Datos específicos del símbolo
  *               }
  *       404:
  *         description: No encontrado. El símbolo con el identificador proporcionado no existe.
@@ -195,7 +195,7 @@ router.get("/simbolo/:simbolo", authMiddleware, async (req, res) => {
  *           application/json:
  *             example:
  *               {
- *                 "instrumentos": [ ... ] // Lista de todos los instrumentos
+ *                 "instrumentos": [ ... ]  #Lista de todos los instrumentos
  *               }
  */
 router.post("/TODOS", authMiddleware, async (req, res) => {
