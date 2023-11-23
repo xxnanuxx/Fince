@@ -59,8 +59,33 @@ async function deleteTransaction(userId, transactionId) {
   }
 }
 
+async function getTransactionsByCategory(userId, categoryId) {
+  try {
+    const db = await connection();
+    const userRef = await db.collection(collectionUsers).doc(userId);
+    const transactionRef = await userRef.collection(collectionTransactions);
+    const querySnapshot = await transactionRef.where("categoriaId", "==", categoryId).get()
+    var listaTransacciones = [];
+
+    querySnapshot.forEach((doc) => {
+        var transaccion = doc.data();
+        listaTransacciones.push(transaccion);
+    });
+
+    const result = {
+      success: true,
+      status: 200,
+      transactions : listaTransacciones
+    };
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export default {
   createTransaction,
   getTransactions,
   deleteTransaction,
+  getTransactionsByCategory,
 };

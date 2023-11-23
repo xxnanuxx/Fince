@@ -1,5 +1,6 @@
 import categoryData from "../Data/categoryData.js";
 import CustomError from "../Utils/customError.js";
+import transactionData from "../Data/transactionData.js";
 
 async function getCategories(id) {
   try {
@@ -29,6 +30,11 @@ async function updateCategory(userId, categoryId, newValues) {
 
 async function deleteCategory(userId, categoryId) {
   try {
+    const resultTransactions = await transactionData.getTransactionsByCategory(userId, categoryId);
+    const cant = resultTransactions.transactions.length
+    if (cant > 0){
+      throw new CustomError("La categoria posee transacciones activas", 400);
+    }
     return categoryData.deleteCategory(userId, categoryId);
   } catch (error) {
     throw error;
