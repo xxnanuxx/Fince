@@ -86,8 +86,7 @@ router.post("/buyAsset/:userId", AuthMiddleware, async (req, res) => {
       req.params.userId,
       newAsset
     );
-
-    res.status(result.status).json(result.data);
+    res.status(result.status).json(result.message);
   } catch (error) {
     console.error("Error in buyAsset {POST}: " + error.message);
     if (error instanceof CustomError) {
