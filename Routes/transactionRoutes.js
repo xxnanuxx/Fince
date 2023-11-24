@@ -162,7 +162,7 @@ router.get("/getTransactions/:userId", AuthMiddleware, async (req, res) => {
  *         $ref: '#/components/responses/InternalError'
  */
 router.post(
-  "/deleteTransaction/:userId/:transactionId",
+  "/deleteTransaction/:userId",
   AuthMiddleware,
   async (req, res) => {
     try {
