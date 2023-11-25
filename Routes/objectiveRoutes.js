@@ -9,7 +9,7 @@ router.get("/:idUser", AuthMiddleware, async (req, res) => {
   try {
     const userId = req.params.idUser;
     const result = await ObjectiveController.getObjectives(userId);
-    res.status(result.status).json(result.data);
+    res.status(result.status).json({ objetivos: result.objetivos });
   } catch (error) {
     console.error("Error in getObjectives {GET}: " + error.message);
     if (error instanceof CustomError) {

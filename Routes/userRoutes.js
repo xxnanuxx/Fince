@@ -298,15 +298,22 @@ router.delete("/:userId", AuthMiddleware, async (req, res) => {
  *         $ref: '#/components/responses/InternalError'
  */
 
-router.put(":userId", AuthMiddleware, async (req, res) => {
+router.put("/:userId", AuthMiddleware, async (req, res) => {
   try {
     const userNewValues = {
       nombre: req.body.nombre,
       apellido: req.body.apellido,
-      mail: req.body.mail,
-      constrasena: req.body.contrasena,
+      correo: req.body.correo,
+      contrasena: req.body.contrasena,
+      perfil: req.body.perfil,
     };
-    const result = await UserController.updateUser(userId, userNewValues);
+
+    console.log(userNewValues);
+
+    const result = await UserController.updateUser(
+      req.params.userId,
+      userNewValues
+    );
 
     res.status(result.status).json(result.data);
   } catch (error) {

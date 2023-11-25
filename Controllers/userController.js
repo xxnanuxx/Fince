@@ -51,7 +51,7 @@ async function createUser(user) {
 
     if (validateUserValues(user)) {
       user.contrasena = await bcrypt.hash(user.contrasena, 10);
-      user = { ...user, ingreso: 0, egreso: 0, perfil: 0 };
+      user = { ...user, ingreso: 0, egreso: 0, perfil: user.perfil || 0 };
       const response = await userData.createUser(user);
       const token = generatedToken(response.newUserId, response.newUser.correo);
 
