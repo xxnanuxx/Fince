@@ -45,6 +45,7 @@ async function getAssetById(userId, assetId) {
     const assetDoc = await portfolioRef.doc(assetId).get();
     if (await assetDoc.exists) {
       const assetData = await assetDoc.data();
+
       return { success: true, status: 200, data: assetData };
     } else {
       return { success: false, status: 404, message: "Activo no encontrado" };
@@ -108,10 +109,41 @@ async function deleteAssetById(userId, assetId) {
   }
 }
 
+async function getAssetByTicker(userId, ticker) {
+  try {
+    const db = await connection();
+    const userRef = db.collection(collectionUsers).doc(userId);
+    const portfolioRef = userRef.collection(collectionPortfolio);
+    const querySnapshot = await portfolioRef.get();
+    let result = null;
+    let assetId = null;
+    querySnapshot.forEach((asset) => {
+      if (asset.data().simbolo == ticker) {
+        result = asset.data();
+        assetId = asset.id;
+      }
+    });
+
+    if (result) {
+      result = {
+        ...result,
+        activoId: assetId,
+      };
+
+      return { success: true, status: 200, data: result };
+    } else {
+      return { success: false, status: 404, message: "Activo no encontrado" };
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 export default {
   buyAsset,
   getPortfolio,
   getAssetById,
   updateAsset,
   deleteAssetById,
+  getAssetByTicker,
 };

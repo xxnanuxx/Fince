@@ -12,7 +12,7 @@ async function getObjectives(userId) {
     const querySnapshot = await objectiveRef.get();
     const objectives = [];
     querySnapshot.forEach((doc) => {
-      objectives.push({ objectivoId: doc.id, ...doc.data() });
+      objectives.push({ objetivoId: doc.id, ...doc.data() });
     });
 
     return { success: true, status: 200, data: objectives };

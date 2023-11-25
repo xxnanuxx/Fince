@@ -27,7 +27,7 @@ async function getObjectives(userId) {
         objetivos: resultObjectivesWithProgress,
       };
 
-      console.log(result);
+      //console.log(result);
 
       return result;
     } else {
