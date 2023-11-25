@@ -308,8 +308,6 @@ router.put("/:userId", AuthMiddleware, async (req, res) => {
       perfil: req.body.perfil,
     };
 
-    console.log(userNewValues);
-
     const result = await UserController.updateUser(
       req.params.userId,
       userNewValues
