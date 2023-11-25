@@ -177,7 +177,7 @@ router.post("/", async (req, res) => {
 router.get("/:id", AuthMiddleware, async (req, res) => {
   try {
     const user = await UserController.findUserById(req.params.id);
-    res.status(user.status).json({ id: user.id, userData: user.userData });
+    res.status(user.status).json(user.userResponse);
   } catch (error) {
     console.log("Error in FindUserById {GET}: " + error.message);
     if (error instanceof CustomError) {
