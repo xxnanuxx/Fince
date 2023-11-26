@@ -94,6 +94,7 @@ async function updateUser(userId, userNewValues) {
       apellido: userNewValues.apellido,
       correo: userNewValues.correo,
       contrasena: userNewValues.contrasena,
+      perfil: userNewValues.perfil,
     });
     return {
       success: true,

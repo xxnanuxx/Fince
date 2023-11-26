@@ -4,8 +4,9 @@ import transactionController from "./transactionController.js";
 import categoryController from "./categoryController.js";
 import stockController from "./stockController.js";
 
-async function buyAsset(userId, newAsset) {
+async function buyAsset(userId, asset) {
   try {
+    let newAsset = asset;
     let resultCategory = null;
     let categoryId = null;
     let result = null;
@@ -72,8 +73,20 @@ async function buyAsset(userId, newAsset) {
     //Existe el activo?
 
     let resultAsset = null;
+
     if (newAsset.activoId != "") {
       resultAsset = await portfolioData.getAssetById(userId, newAsset.activoId);
+    }
+
+    if (resultAsset == null && newAsset.simbolo != "") {
+      resultAsset = await portfolioData.getAssetByTicker(
+        userId,
+        newAsset.simbolo
+      );
+    }
+
+    if (resultAsset.success && resultAsset.data.activoId != "") {
+      newAsset.activoId = resultAsset.data.activoId;
     }
 
     //Si existe actualizo el activo del portfolio y (categoria?) luego genero transaccion
@@ -130,7 +143,7 @@ async function buyAsset(userId, newAsset) {
 
       //Si no existe genero el activo en portfolio y genero transanccion
     } else if (
-      resultAsset == null &&
+      !resultAsset.success &&
       validateAsset(newAsset) &&
       validateTransaction
     ) {
