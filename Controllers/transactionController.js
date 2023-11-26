@@ -50,6 +50,7 @@ async function createTransaction(userId, transaction) {
           transaction.categoriaId,
           transaction.montoConsumido
         );
+
         return await transactionData.createTransaction(userId, transaction);
       } else {
         throw new CustomError("Invalid common transaction", 400);
@@ -85,14 +86,17 @@ async function getTransactions(userId) {
       let categorySearch = categories.find(
         (cat) => cat.id === transaction.categoriaId
       );
-      if (transaction.categoriaId == categorySearch.id) {
+
+      /* if (transaction.categoriaId == categorySearch.id) {
         tipo = categorySearch.tipo;
-        if (tipo == 0) {
-          expenseAmount += transaction.montoConsumido;
-        } else {
-          incomeAmount += transaction.montoConsumido;
-        }
+        console.log("category tipo: ", tipo); */
+
+      if (transaction.tipo == 0) {
+        expenseAmount += transaction.montoConsumido;
+      } else {
+        incomeAmount += parseInt(transaction.montoConsumido);
       }
+      //}
     });
     return {
       ...resultTransactions,
