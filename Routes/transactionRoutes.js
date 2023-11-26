@@ -53,7 +53,7 @@ router.post("/createTransaction/:userId", AuthMiddleware, async (req, res) => {
       montoConsumido: req.body.montoConsumido,
       fecha: req.body.fecha,
       tipo: req.body.tipo,
-      financiera: req.body.financiera,
+      financiera: req.body.financiera === "true" ? true : false,
     };
 
     const result = await transactionController.createTransaction(
@@ -112,7 +112,6 @@ router.post("/createTransaction/:userId", AuthMiddleware, async (req, res) => {
  */
 router.get("/getTransactions/:userId", AuthMiddleware, async (req, res) => {
   try {
-    
     const result = await transactionController.getTransactions(
       req.params.userId
     );
@@ -175,7 +174,7 @@ router.post(
         tipo: req.body.tipo,
         id: req.body.id,
       };
-      
+
       const result = await transactionController.deleteTransaction(
         req.params.userId,
         transaction

@@ -95,7 +95,7 @@ router.post("/:userId", AuthMiddleware, async (req, res) => {
     const userId = req.params.userId;
     const category = req.body;
     const result = await CategoryController.createCategory(userId, category);
-    res.status(result.status).json({message: result.message});
+    res.status(result.status).json({ message: result.message });
   } catch (error) {
     console.error("Error in createCategory {POST}: " + error.message);
     if (error instanceof CustomError) {

@@ -7,7 +7,7 @@ async function createTransaction(userId, transaction) {
     if (!transaction.financiera && validateTransaction(transaction)) {
       //entra si no es financiera y si es valida la transaccion
 
-      if ((transaction.tipo = 0)) {
+      if (transaction.tipo == 0) {
         // caso de transaccion de egreso
 
         const maxAmount = await categoryController.getMaxAmount(
@@ -155,7 +155,7 @@ async function getDataGraph(userId) {
         groupedTransactions[year][month] = { ingresos: 0, egresos: 0 };
       }
 
-      if (transaction.tipo === 1) {
+      if (transaction.tipo == 1) {
         groupedTransactions[year][month].ingresos += transaction.montoConsumido;
       } else {
         groupedTransactions[year][month].egresos += transaction.montoConsumido;
@@ -182,8 +182,6 @@ async function getDataGraph(userId) {
       }
       return monthNames.indexOf(a.month) - monthNames.indexOf(b.month);
     });
-
-    //console.log(dataBarChart);
 
     const result = { success: true, status: 200, data: dataBarChart };
 
