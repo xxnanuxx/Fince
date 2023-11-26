@@ -35,6 +35,8 @@ async function login(mail, password) {
         };
         return { success: true, status: 200, user: userResponse };
       }
+    } else {
+      throw new CustomError("Email doesn't exists", 400);
     }
   } catch (error) {
     throw error;
@@ -83,7 +85,21 @@ async function findUserById(userId) {
   try {
     const result = await userData.findUserById(userId);
     result.userData.contrasena = "";
-    return result;
+
+    const userResponse = {
+      userId: result.id,
+      nombre: result.userData.nombre,
+      apellido: result.userData.apellido,
+      correo: result.userData.correo,
+      ingreso: result.userData.ingreso,
+      egreso: result.userData.egreso,
+      perfil: result.userData.perfil,
+    };
+
+    return {
+      status: result.status,
+      userResponse: userResponse,
+    };
   } catch (error) {
     throw error;
   }
