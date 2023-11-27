@@ -160,36 +160,32 @@ router.get("/getTransactions/:userId", AuthMiddleware, async (req, res) => {
  *       500:
  *         $ref: '#/components/responses/InternalError'
  */
-router.post(
-  "/deleteTransaction/:userId",
-  AuthMiddleware,
-  async (req, res) => {
-    try {
-      const transaction = {
-        titulo: req.body.titulo,
-        categoriaId: req.body.categoriaId,
-        categoriaNombre: req.body.categoriaNombre,
-        montoConsumido: req.body.montoConsumido,
-        fecha: req.body.fecha,
-        tipo: req.body.tipo,
-        id: req.body.id,
-      };
+router.post("/deleteTransaction/:userId", AuthMiddleware, async (req, res) => {
+  try {
+    const transaction = {
+      titulo: req.body.titulo,
+      categoriaId: req.body.categoriaId,
+      categoriaNombre: req.body.categoriaNombre,
+      montoConsumido: req.body.montoConsumido,
+      fecha: req.body.fecha,
+      tipo: req.body.tipo,
+      id: req.body.id,
+    };
 
-      const result = await transactionController.deleteTransaction(
-        req.params.userId,
-        transaction
-      );
-      res.status(result.status).json({ message: result.message });
-    } catch (error) {
-      console.log("Error in deleteTransaction {DELETE}: " + error.message);
-      if (error instanceof CustomError) {
-        res.status(error.status).json({ error: error.message });
-      } else {
-        res.status(500).send("Internal Server Error");
-      }
+    const result = await transactionController.deleteTransaction(
+      req.params.userId,
+      transaction
+    );
+    res.status(result.status).json({ message: result.message });
+  } catch (error) {
+    console.log("Error in deleteTransaction {DELETE}: " + error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
     }
   }
-);
+});
 /**
  * @openapi
  * /api/transactions/singleTransaction/{userId}/{transactionId}:

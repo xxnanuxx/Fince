@@ -27,8 +27,6 @@ async function getObjectives(userId) {
         objetivos: resultObjectivesWithProgress,
       };
 
-      //console.log(result);
-
       return result;
     } else {
       throw new CustomError("User has not information", 400);

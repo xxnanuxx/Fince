@@ -87,10 +87,6 @@ async function getTransactions(userId) {
         (cat) => cat.id === transaction.categoriaId
       );
 
-      /* if (transaction.categoriaId == categorySearch.id) {
-        tipo = categorySearch.tipo;
-        console.log("category tipo: ", tipo); */
-
       if (transaction.tipo == 0) {
         expenseAmount += transaction.montoConsumido;
       } else {
