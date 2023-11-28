@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import CustomError from "../Utils/customError.js";
 import userData from "../Data/userData.js";
+import nodemailer from 'nodemailer'
 
 async function getUsers() {
   try {
@@ -45,11 +46,6 @@ async function login(mail, password) {
 
 async function createUser(user) {
   try {
-    const existingUser = await userData.findUserByMail(user.correo);
-
-    if (existingUser) {
-      throw new CustomError("User already exists", 409);
-    }
 
     if (validateUserValues(user)) {
       user.contrasena = await bcrypt.hash(user.contrasena, 10);
@@ -134,6 +130,53 @@ async function checkPassword(stringPass, hashPass) {
   }
   return true;
 }
+
+async function sendAuthCode(email) {
+  try {
+    const codigoVerificacion = Math.floor(1000 + Math.random() * 9000);
+
+    const transporter = nodemailer.createTransport({
+      service: process.env.FINCE_SERV,
+      auth: {
+        user: process.env.FINCE_MAIL,
+        pass: process.env.FINCE_PWD
+      }
+    });
+
+    const mailOptions = {
+      from: 'APP FINCE',
+      to: email,
+      subject: 'Código de verificación',
+      text: `Tu código de verificación es: ${codigoVerificacion}`
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    if (info && info.response.includes('OK')) {
+      const result = {status: 200, message: 'Código de verificación enviado', authCode: codigoVerificacion}
+      return result;
+    } else {
+      throw new CustomError('Error al enviar el código de verificación', 500);
+    }
+  } catch (error) {
+    if (error instanceof CustomError) {
+      throw error;
+    } else {
+      throw new CustomError(`Error in send code to mail ${email}`, 401);
+    }
+  }
+}
+
+async function verifyEmail(email) {
+  const existingUser = await userData.findUserByMail(email);
+
+  if (existingUser) {
+    throw new CustomError("User already exists", 409);
+  } else {
+    return {status: 200, message: "OK"}
+  }
+}
+
 function generatedToken(id, mail) {
   const token = jwt.sign({ id, mail }, process.env.SECRET, { expiresIn: "4h" });
   return token;
@@ -170,4 +213,6 @@ export default {
   deleteUserById,
   login,
   updateUser,
+  sendAuthCode,
+  verifyEmail
 };

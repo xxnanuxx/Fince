@@ -229,6 +229,33 @@ router.delete("/:userId", AuthMiddleware, async (req, res) => {
   }
 });
 
+router.post("/sendAuthCode/:email", async (req, res) => {
+  try{
+    const result = await UserController.sendAuthCode(req.params.email)
+    res.status(result.status).json({message : result.message, authCode: result.authCode})
+  } catch(error) {
+    console.log("Error in send code {POST}: " + error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  }
+})
+
+router.get("/verifyEmail/:email", async (req, res) => {
+  try {
+    const result = await UserController.verifyEmail(req.params.email)
+    res.status(result.status).json(result.message)
+  } catch (error) {
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  }
+})
+
 /**
  * @openapi
  * /api/users/{userId}:
