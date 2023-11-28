@@ -1,5 +1,4 @@
 import connection from "./connection.js";
-import CustomError from "../Utils/customError.js";
 
 const collectionUsers = "usuarios";
 const collectionObjectives = "objetivos";
