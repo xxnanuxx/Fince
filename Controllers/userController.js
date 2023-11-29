@@ -134,7 +134,6 @@ async function checkPassword(stringPass, hashPass) {
 async function sendAuthCode(email) {
   try {
     const codigoVerificacion = Math.floor(1000 + Math.random() * 9000);
-
     const transporter = nodemailer.createTransport({
       service: process.env.FINCE_SERV,
       auth: {
@@ -177,6 +176,28 @@ async function verifyEmail(email) {
   }
 }
 
+async function findUserByMail(email) {
+
+  try {
+    const result = await userData.findUserByMail(email);
+
+    const userResponse = {
+      userId: result.id,
+      nombre: result.userData.nombre,
+      apellido: result.userData.apellido,
+      correo: result.userData.correo,
+      ingreso: result.userData.ingreso,
+      egreso: result.userData.egreso,
+      perfil: result.userData.perfil,
+    };
+
+    return {status: 200, user: userResponse}
+  } catch (error) {
+    throw error
+  }
+  
+}
+
 function generatedToken(id, mail) {
   const token = jwt.sign({ id, mail }, process.env.SECRET, { expiresIn: "4h" });
   return token;
@@ -214,5 +235,6 @@ export default {
   login,
   updateUser,
   sendAuthCode,
-  verifyEmail
+  verifyEmail,
+  findUserByMail
 };

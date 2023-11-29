@@ -26,8 +26,8 @@ async function findUserByMail(mail) {
       .where("correo", "==", mail)
       .get();
 
-    if (querySnapshot.empty) {
-      return null;
+    if (querySnapshot.exists) {
+      throw new CustomError("User doesn't exists", 404);
     }
 
     const userDoc = querySnapshot.docs[0];
@@ -96,6 +96,7 @@ async function updateUser(userId, userNewValues) {
       contrasena: userNewValues.contrasena,
       perfil: userNewValues.perfil,
     });
+    console.log(userNewValues)
     return {
       success: true,
       status: 200,
