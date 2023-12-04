@@ -1,0 +1,32 @@
+    // Intalar PYTHON
+    //https://www.python.org/ftp/python/3.12.0/python-3.12.0-amd64.exe
+    
+
+    //En node:
+    //npm config set python C:\Users\cjgon\AppData\Local\Programs\Python\Python312\python.exe
+    //SET PYTHON=C:\Users\cjgon\AppData\Local\Programs\Python\Python312\python.exe
+
+    //VISUAL STUDIO CON SOPORTE PARA APPS C++
+    //https://visualstudio.microsoft.com/es/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSFeaturesPage&passive=true&tailored=cplus&cid=2031#cplusplus
+
+    //TensorFlow.js Node.js utiliza TensorFlow C API y requiere la presencia de algunas dependencias de C++.
+    //es una herramienta que se utiliza para compilar módulos nativos de Node.js.
+    //Los módulos nativos son extensiones de Node.js escritas en C++
+
+    //habilitar la ejecución de scripts
+    //Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+    //Deshabilitar la ejecución de scripts CUANDO TERMINAMOS DE EJECUTAR
+    //Set-ExecutionPolicy -ExecutionPolicy Restricted -Scope Process
+    
+    //npm install --global windows-build-tools
+    //npm install node-gyp -g
+    //pip install disutils
+
+    //Compilar TensorFlow.js Node addon:
+    //agregar binding.gyp (tiene unas lineas) y src/binding.cc (carpeta con archivo vacio adentro)
+    //node-gyp configure
+    //node-gyp build
+
+    //instalar TensorFlow
+    //npm install @tensorflow/tfjs-node
+    //npm install @tensorflow/tfjs@2.0.0

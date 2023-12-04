@@ -364,4 +364,18 @@ router.get("/getDataGraph/:userId", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/getPrediction/:userId", authMiddleware, async (req, res) => {
+  try {
+    const result = await transactionController.getPrediction(req.params.userId);
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error in getPrediction {GET}: " + error.message);
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  }
+});
+
 export default router;

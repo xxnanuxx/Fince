@@ -1,6 +1,7 @@
 import CustomError from "../Utils/customError.js";
 import transactionData from "../Data/transactionData.js";
 import categoryController from "./categoryController.js";
+import * as tf from "@tensorflow/tfjs-node";
 
 async function createTransaction(userId, transaction) {
   try {
@@ -191,6 +192,231 @@ async function getDataGraph(userId) {
   }
 }
 
+async function getPrediction(userId) {
+  try {
+    const meses = [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
+    ];
+
+    // Obtener datos históricos
+    const response = await getDataGraph(userId);
+    const datos = response.data;
+
+    // Extraer ingresos y egresos de los datos históricos
+    const ingresos = datos.map((item) => parseFloat(item.ingresos));
+    const egresos = datos.map((item) => parseFloat(item.egresos));
+
+    // Calcula rango
+    const rangeIngresos = tf
+      .tensor1d(ingresos)
+      .max()
+      .sub(tf.tensor1d(ingresos).min());
+    const rangeEgresos = tf
+      .tensor1d(egresos)
+      .max()
+      .sub(tf.tensor1d(egresos).min());
+
+    //calculo las medias
+    const meanIngresos = tf.tensor1d(ingresos).mean();
+    const meanEgresos = tf.tensor1d(egresos).mean();
+
+    const ingresosNormalizados = tf
+      .tensor1d(ingresos)
+      .sub(meanIngresos)
+      .div(rangeIngresos);
+    const egresosNormalizados = tf
+      .tensor1d(egresos)
+      .sub(meanEgresos)
+      .div(rangeEgresos);
+
+    // Crear y compilar modelos
+    const modelIngresos = tf.sequential();
+    modelIngresos.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+    modelIngresos.compile({ optimizer: "sgd", loss: "meanSquaredError" });
+
+    const modelEgresos = tf.sequential();
+    modelEgresos.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+    modelEgresos.compile({ optimizer: "sgd", loss: "meanSquaredError" });
+
+    // Entrenar modelos
+    await entrenarModelo(
+      modelIngresos,
+      ingresosNormalizados,
+      ingresosNormalizados
+    );
+    await entrenarModelo(
+      modelEgresos,
+      egresosNormalizados,
+      egresosNormalizados
+    );
+
+    // Hacer predicciones para el mes siguiente
+    const ultimaFecha = datos[datos.length - 1];
+    const nuevosIngresosNormalizados = tf.tensor2d([[0]]); // Ingresos no proporcionados, asumimos 0
+    const nuevosEgresosNormalizados = tf.tensor2d([[0]]); // Egresos no proporcionados, asumimos 0
+
+    const predicDesnormIngresos = hacerPrediccion(
+      modelIngresos,
+      nuevosIngresosNormalizados,
+      rangeIngresos,
+      meanIngresos
+    );
+    const predicDesnormEgresos = hacerPrediccion(
+      modelEgresos,
+      nuevosEgresosNormalizados,
+      rangeEgresos,
+      meanEgresos
+    );
+
+    const indiceActual = meses.indexOf(ultimaFecha.month);
+    const mesSiguiente = obtenerMesSiguiente(meses[indiceActual]);
+    const mesPosterior = obtenerMesSiguiente(mesSiguiente);
+
+    const data = [...datos];
+
+    let anio =
+      mesSiguiente === "Enero"
+        ? (parseInt(ultimaFecha.year) + 1).toString()
+        : ultimaFecha.year;
+
+    data.push({
+      year: anio,
+      month: mesSiguiente,
+      ingresos: predicDesnormIngresos[0][0],
+      egresos: predicDesnormEgresos[0][0],
+    });
+
+    const nuevosIngresos = data.map((item) => parseFloat(item.ingresos));
+    const nuevosEgresos = data.map((item) => parseFloat(item.egresos));
+
+    const nuevosRangeIngresos = tf
+      .tensor1d(nuevosIngresos)
+      .max()
+      .sub(tf.tensor1d(nuevosIngresos).min());
+    const nuevoRangeEgresos = tf
+      .tensor1d(nuevosEgresos)
+      .max()
+      .sub(tf.tensor1d(nuevosEgresos).min());
+    const nuevoMeanIngresos = tf.tensor1d(nuevosIngresos).mean();
+    const nuevoMeanEgresos = tf.tensor1d(nuevosEgresos).mean();
+
+    const nuevosIngresosNormalizadosMesPosterior = tf
+      .tensor1d(nuevosIngresos)
+      .sub(nuevoMeanIngresos)
+      .div(nuevosRangeIngresos);
+    const nuevosEgresosNormalizadosMesPosterior = tf
+      .tensor1d(nuevosEgresos)
+      .sub(nuevoMeanEgresos)
+      .div(nuevoRangeEgresos);
+
+    const modelNuevosIngresos = tf.sequential();
+    modelNuevosIngresos.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+    modelNuevosIngresos.compile({ optimizer: "sgd", loss: "meanSquaredError" });
+
+    const modelNuevosEgresos = tf.sequential();
+    modelNuevosEgresos.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+    modelNuevosEgresos.compile({ optimizer: "sgd", loss: "meanSquaredError" });
+
+    await entrenarModelo(
+      modelNuevosIngresos,
+      nuevosIngresosNormalizadosMesPosterior,
+      nuevosIngresosNormalizadosMesPosterior
+    );
+
+    await entrenarModelo(
+      modelNuevosEgresos,
+      nuevosEgresosNormalizadosMesPosterior,
+      nuevosEgresosNormalizadosMesPosterior
+    );
+
+    const prediccionesDesnormalizadasNuevosIngresosMesPosterior =
+      hacerPrediccion(
+        modelNuevosIngresos,
+        nuevosIngresosNormalizadosMesPosterior,
+        nuevosRangeIngresos,
+        nuevoMeanIngresos
+      );
+
+    const prediccionesDesnormalizadasNuevosEgresosMesPosterior =
+      hacerPrediccion(
+        modelNuevosEgresos,
+        nuevosEgresosNormalizadosMesPosterior,
+        nuevoRangeEgresos,
+        nuevoMeanEgresos
+      );
+
+    anio =
+      mesPosterior == "Enero" || mesPosterior == "Febrero"
+        ? (parseInt(ultimaFecha.year) + 1).toString()
+        : ultimaFecha.year;
+
+    data.push({
+      year: anio,
+      month: mesPosterior,
+      ingresos: prediccionesDesnormalizadasNuevosIngresosMesPosterior[0][0],
+      egresos: prediccionesDesnormalizadasNuevosEgresosMesPosterior[0][0],
+    });
+
+    return { status: 200, data: data };
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Función para entrenar un modelo
+async function entrenarModelo(model, X, y) {
+  await model.fit(X, y, { epochs: 100 });
+}
+
+// Función para hacer predicciones y desnormalizar
+function hacerPrediccion(model, nuevosDatosNormalizados, range, mean) {
+  const prediccionesNormalizadas = model.predict(nuevosDatosNormalizados);
+  return prediccionesNormalizadas.mul(range).add(mean).arraySync();
+}
+
+// Función para obtener el mes siguiente
+function obtenerMesSiguiente(mesActual) {
+  const meses = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  const indiceActual = meses.indexOf(mesActual);
+
+  // Verificar si el mes actual está en el rango válido
+  if (indiceActual !== -1) {
+    // Manejar el caso especial de diciembre
+    if (indiceActual === 11) {
+      return meses[0]; // El siguiente mes después de diciembre es enero
+    } else {
+      return meses[indiceActual + 1];
+    }
+  } else {
+    throw new Error("Mes no válido");
+  }
+}
+
 //Validations
 
 function validateTransaction(transaction) {
@@ -225,4 +451,5 @@ export default {
   deleteTransaction,
   validateTransaction,
   getDataGraph,
+  getPrediction,
 };
