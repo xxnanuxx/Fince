@@ -258,6 +258,19 @@ router.get("/verifyEmail/:email", async (req, res) => {
   }
 });
 
+router.get("/findUserByMail/:email", async (req, res) => {
+  try {
+    const result = await UserController.findUserByMail(req.params.email)
+    res.status(result.status).json(result.user)
+  } catch (error) {
+    if (error instanceof CustomError) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  }
+})
+
 /**
  * @openapi
  * /api/users/{userId}:
@@ -327,7 +340,7 @@ router.get("/verifyEmail/:email", async (req, res) => {
  *         $ref: '#/components/responses/InternalError'
  */
 
-router.put("/:userId", AuthMiddleware, async (req, res) => {
+router.put("/:userId", async (req, res) => {
   try {
     const userNewValues = {
       nombre: req.body.nombre,
@@ -341,8 +354,8 @@ router.put("/:userId", AuthMiddleware, async (req, res) => {
       req.params.userId,
       userNewValues
     );
-
-    res.status(result.status).json(result.data);
+    console.log(result.updateData)
+    res.status(result.status).json(result.updateData);
   } catch (error) {
     console.log("Error in updateUser {PUT}: " + error.message);
     if (error instanceof CustomError) {

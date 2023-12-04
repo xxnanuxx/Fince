@@ -6,7 +6,7 @@
 .env.local
 
 # Dependency directories
-node_modules/
+node_modules
 
 # Logs
 logs

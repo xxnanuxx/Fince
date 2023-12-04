@@ -26,8 +26,9 @@ async function findUserByMail(mail) {
       .where("correo", "==", mail)
       .get();
 
+    
     if (querySnapshot.empty) {
-      return null;
+      throw new CustomError("User doesn't exists", 404);
     }
 
     const userDoc = querySnapshot.docs[0];
@@ -61,7 +62,7 @@ async function findUserById(userId) {
     const db = await connection();
     const userDoc = await db.collection(collectionUsers).doc(userId).get();
 
-    if (!userDoc.exists) {
+    if (userDoc.empty) {
       throw new CustomError("User doesn't exists", 404);
     }
 
@@ -96,6 +97,7 @@ async function updateUser(userId, userNewValues) {
       contrasena: userNewValues.contrasena,
       perfil: userNewValues.perfil,
     });
+
     return {
       success: true,
       status: 200,
