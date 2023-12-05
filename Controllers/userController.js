@@ -14,7 +14,7 @@ async function getUsers() {
 
 async function login(mail, password) {
   try {
-    const user = await userData.findUserByMail(mail);
+    const user = await userData.findUserByMail(mail, true);
     if (user) {
       const stringPass = password.toString();
       const hashPass = user.userData.contrasena.toString();
@@ -114,8 +114,11 @@ async function deleteUserById(userId) {
 async function updateUser(userId, userUpdate) {
   try {
     if (validateUserValues(userUpdate)) {
-      const newPass = userUpdate.contrasena;
-      userUpdate.contrasena = await bcrypt.hash(newPass, 10);
+      if (userUpdate.contrasena.trim().length !== 0) {
+        const newPass = userUpdate.contrasena;
+        userUpdate.contrasena = await bcrypt.hash(newPass, 10);
+      }
+      
       return await userData.updateUser(userId, userUpdate);
     }
   } catch (error) {
@@ -167,7 +170,7 @@ async function sendAuthCode(email) {
 }
 
 async function verifyEmail(email) {
-  const existingUser = await userData.findUserByMail(email);
+  const existingUser = await userData.findUserByMail(email, false);
 
   if (existingUser) {
     throw new CustomError("User already exists", 409);
@@ -179,7 +182,7 @@ async function verifyEmail(email) {
 async function findUserByMail(email) {
 
   try {
-    const result = await userData.findUserByMail(email);
+    const result = await userData.findUserByMail(email, true);
 
     const userResponse = {
       userId: result.id,
@@ -216,9 +219,6 @@ function validateUserValues(user) {
     throw new CustomError("Invalid last name", 400);
   }
 
-  if (!user.contrasena || user.contrasena.trim() === "") {
-    throw new CustomError("Invalid password", 400);
-  }
   return true;
 }
 

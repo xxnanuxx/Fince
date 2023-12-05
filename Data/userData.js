@@ -18,25 +18,34 @@ async function getUsers() {
   }
 }
 
-async function findUserByMail(mail) {
+async function findUserByMail(mail, login) {
   try {
+    let userId = ""
+    let userData = ""
+
     const db = await connection();
     const querySnapshot = await db
       .collection(collectionUsers)
       .where("correo", "==", mail)
       .get();
-
     
-    if (querySnapshot.empty) {
-      throw new CustomError("User doesn't exists", 404);
+    if (login) {
+      if (querySnapshot.empty) {
+        throw new CustomError("User doesn't exists", 404);
+      }
     }
 
-    const userDoc = querySnapshot.docs[0];
-    const userId = userDoc.id;
-    const userData = userDoc.data();
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      userId = userDoc.id;
+      userData = userDoc.data()
+    } else {
+      return null
+    }
 
     return { id: userId, userData: userData };
   } catch (error) {
+    console.log(error)
     throw error;
   }
 }
@@ -94,9 +103,14 @@ async function updateUser(userId, userNewValues) {
       nombre: userNewValues.nombre,
       apellido: userNewValues.apellido,
       correo: userNewValues.correo,
-      contrasena: userNewValues.contrasena,
       perfil: userNewValues.perfil,
     });
+
+    if (userNewValues.contrasena.trim().length !== 0) {
+      await userRef.update({
+        contrasena: userNewValues.contrasena
+      })
+    }
 
     return {
       success: true,

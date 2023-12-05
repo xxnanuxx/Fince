@@ -3,8 +3,8 @@
     
 
     //En node:
-    //npm config set python C:\Users\cjgon\AppData\Local\Programs\Python\Python312\python.exe
-    //SET PYTHON=C:\Users\cjgon\AppData\Local\Programs\Python\Python312\python.exe
+    //npm config set python C:\Users\xXNanuXx\AppData\Local\Programs\Python\Python312/python.exe
+    //SET PYTHON=C:\Users\xXNanuXx\AppData\Local\Programs\Python\Python312/python.exe
 
     //VISUAL STUDIO CON SOPORTE PARA APPS C++
     //https://visualstudio.microsoft.com/es/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSFeaturesPage&passive=true&tailored=cplus&cid=2031#cplusplus

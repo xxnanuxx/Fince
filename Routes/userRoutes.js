@@ -346,7 +346,7 @@ router.put("/:userId", async (req, res) => {
       nombre: req.body.nombre,
       apellido: req.body.apellido,
       correo: req.body.correo,
-      contrasena: req.body.contrasena,
+      contrasena: req.body.contrasena || "",
       perfil: req.body.perfil,
     };
 
@@ -354,7 +354,6 @@ router.put("/:userId", async (req, res) => {
       req.params.userId,
       userNewValues
     );
-    console.log(result.updateData)
     res.status(result.status).json(result.updateData);
   } catch (error) {
     console.log("Error in updateUser {PUT}: " + error.message);
